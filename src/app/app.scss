@@ -1,0 +1,244 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--ford-blue-deep) 0%, var(--ford-blue) 55%, var(--ford-blue-light) 100%);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 28, 66, 0.35);
+  border-bottom: 3px solid var(--ford-sky-soft);
+}
+
+.topbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.marca {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+.marca-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.marca-sub {
+  color: var(--ford-sky-soft);
+  font-weight: 600;
+}
+
+.nav {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  font-weight: 600;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 2px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav a:hover {
+  color: #ffe9b3;
+}
+
+.nav a.activo {
+  color: var(--warning);
+  border-bottom-color: var(--warning);
+}
+
+.nav-badge {
+  margin-left: 5px;
+}
+
+.topbar-seccion {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24px;
+  padding: 4px 6px 4px 14px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+  width: 260px;
+  transition: box-shadow 0.2s;
+}
+
+.buscador:focus-within {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+}
+
+.buscador-icono {
+  font-size: 0.9rem;
+  margin-right: 6px;
+}
+
+.buscador input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--text);
+  background: transparent;
+}
+
+.buscador-limpiar {
+  border: none;
+  background: var(--ford-tint);
+  color: var(--ford-blue);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.buscador-limpiar:hover {
+  background: var(--ford-tint-strong);
+}
+
+.carrito {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.carrito:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.carrito:active {
+  transform: scale(0.94);
+}
+
+.carrito-icono {
+  font-size: 1.35rem;
+}
+
+.carrito-burbuja {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e53935;
+  color: #fff;
+  border: 2px solid var(--ford-blue);
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.cuenta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.usuario-nombre {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.cargando-sesion {
+  font-size: 0.9rem;
+  color: #aec5e4;
+}
+
+.btn-mini {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+}
+
+/* Íconos de ofertas en la marca */
+.oferta-ico {
+  color: var(--warning);
+}
+
+.contenido-principal {
+  padding: 2rem 1.2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 980px) {
+  .topbar-inner {
+    justify-content: center;
+  }
+
+  .buscador {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .topbar-seccion {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .marca {
+    font-size: 1.15rem;
+  }
+
+  .nav {
+    gap: 14px;
+    font-size: 0.92rem;
+  }
+
+  .usuario-nombre {
+    display: none;
+  }
+
+  .contenido-principal {
+    padding: 1.4rem 0.9rem;
+  }
+}

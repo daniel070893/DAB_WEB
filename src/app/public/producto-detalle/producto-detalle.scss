@@ -1,0 +1,84 @@
+.volver {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--ford-sky);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+.miniatura {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.miniatura:hover {
+  border-color: var(--ford-sky);
+}
+
+.miniatura-activa {
+  border-color: var(--ford-blue);
+  box-shadow: 0 0 0 3px rgba(0, 52, 120, 0.2);
+}
+
+.bloque-precio {
+  margin: 20px 0;
+}
+
+.precio-tachado {
+  font-size: 1rem;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.precio-detalle-oferta {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+.precio-detalle-normal {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--ford-blue);
+}
+
+.disponibilidad {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.disponible {
+  color: var(--success);
+}
+
+.agotado {
+  color: var(--danger);
+}
+
+.datos-caja {
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.8;
+  background: var(--ford-tint);
+  border: 1px solid var(--ford-tint-strong);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .miniatura {
+    width: 64px;
+    height: 64px;
+  }
+}

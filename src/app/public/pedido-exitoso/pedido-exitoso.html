@@ -1,67 +1,66 @@
-<div style="max-width: 800px; margin: 0 auto; text-align: center;">
+<div class="contenedor-sm" style="text-align: center;">
 
     @if (pedido) {
-        <div style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 3rem 2rem;">
+        <div class="card card-padding">
 
-            <div style="width: 72px; height: 72px; margin: 0 auto 1.2rem auto; background: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.2rem;">✓</div>
+            <div class="check-icono">✓</div>
 
-            <h2 style="margin: 0 0 8px 0; color: #333;">¡Pedido confirmado!</h2>
-            <p style="margin: 0 0 20px 0; color: #666;">Tu pago fue procesado correctamente. Aquí está tu comprobante:</p>
+            <h2 style="margin: 0 0 8px;">¡Pedido confirmado!</h2>
+            <p style="margin: 0 0 22px; color: var(--muted);">Tu pago fue procesado correctamente. Aquí está tu comprobante:</p>
 
-            <div style="background: #f7f7f7; border: 1px dashed #ccc; border-radius: 8px; padding: 20px; text-align: left; margin-bottom: 24px;">
+            <div class="comprobante">
                 <div style="display: flex; justify-content: space-between; padding: 6px 0;">
-                    <span style="color: #666;">Número de pedido</span>
-                    <span style="font-weight: bold; color: #333;">{{ pedido.folio }}</span>
+                    <span>Número de pedido</span>
+                    <strong>{{ pedido.folio }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 6px 0;">
-                    <span style="color: #666;">Cliente</span>
-                    <span style="font-weight: bold; color: #333;">{{ pedido.usuarioNombre }}</span>
+                    <span>Cliente</span>
+                    <strong>{{ pedido.usuarioNombre }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 6px 0;">
-                    <span style="color: #666;">Referencia de pago</span>
-                    <span style="font-weight: bold; color: #333;">{{ pedido.pagadorId }}</span>
+                    <span>Referencia de pago</span>
+                    <strong>{{ pedido.pagadorId }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 6px 0;">
-                    <span style="color: #666;">Estado</span>
-                    <span style="font-weight: bold; color: #4caf50;">Pagado</span>
+                    <span>Estado</span>
+                    <strong style="color: var(--success);">Pagado</strong>
                 </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
-                <thead>
-                    <tr style="border-bottom: 2px solid #eee;">
-                        <th style="padding: 10px;">Producto</th>
-                        <th style="padding: 10px; text-align: center;">Cantidad</th>
-                        <th style="padding: 10px; text-align: right;">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (item of pedido.items; track item.productoId) {
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px; color: #333;">{{ item.nombre }}</td>
-                            <td style="padding: 10px; text-align: center; color: #333;">{{ item.cantidad }}</td>
-                            <td style="padding: 10px; text-align: right; color: #333;">{{ totalItem(item) | currency:'MXN' }}</td>
+            <div class="tabla-envoltorio" style="margin-bottom: 20px;">
+                <table class="tabla" style="text-align: left;">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th style="text-align: center;">Cantidad</th>
+                            <th style="text-align: right;">Subtotal</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @for (item of pedido.items; track item.productoId) {
+                            <tr>
+                                <td>{{ item.nombre }}</td>
+                                <td style="text-align: center;">{{ item.cantidad }}</td>
+                                <td style="text-align: right;">{{ totalItem(item) | currency:'MXN' }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
             <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
-                <span style="font-size: 1rem; color: #666;">Total pagado</span>
-                <span style="font-size: 1.8rem; font-weight: bold; color: #333;">{{ pedido.total | currency:'MXN' }}</span>
+                <span style="color: var(--muted);">Total pagado</span>
+                <span class="total-pagado">{{ pedido.total | currency:'MXN' }}</span>
             </div>
 
-            <a routerLink="/" style="display: inline-block; margin-top: 24px; background-color: #007bff; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold;">
-                Seguir Comprando
-            </a>
+            <a routerLink="/" class="btn btn-primario" style="margin-top: 24px;">Seguir Comprando</a>
         </div>
     } @else {
-        <div style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 3rem 2rem;">
-            <h2 style="margin: 0 0 8px 0; color: #333;">No encontramos tu pedido</h2>
-            <p style="margin: 0 0 20px 0; color: #666;">Recarga la página del carrito y vuelve a confirmar tu pedido.</p>
-            <a routerLink="/" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold;">
-                Ir al Catálogo
-            </a>
+        <div class="card card-padding">
+            <div style="font-size: 2.6rem; margin-bottom: 10px;">🤔</div>
+            <h2 style="margin: 0 0 8px;">No encontramos tu pedido</h2>
+            <p style="margin: 0 0 20px; color: var(--muted);">Recarga la página del carrito y vuelve a confirmar tu pedido.</p>
+            <a routerLink="/" class="btn btn-primario">Ir al Catálogo</a>
         </div>
     }
 

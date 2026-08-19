@@ -1,48 +1,71 @@
-<header style="padding: 1rem; background: #333; color: white; display: flex; justify-content: space-between; align-items: center;">
-  <h1 style="margin: 0; cursor: pointer; font-size: 1.5rem;" routerLink="/">MiPOS Auto Partes</h1>
-  
-  <div style="display: flex; gap: 25px; align-items: center;">
-    
-    <!-- Ícono del carrito de compras -->
-    <div style="position: relative; cursor: pointer; display: flex; align-items: center;" routerLink="/carrito" title="Ver carrito">
-      <span style="font-size: 1.8rem;">🛒</span>
-      
-      <!-- La burbuja solo aparece si hay más de 0 artículos -->
-      @if (cartService.cantidadTotal() > 0) {
-        <span style="position: absolute; top: -5px; right: -10px; background-color: #e53935; color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-          {{ cartService.cantidadTotal() }}
-        </span>
-      }
-    </div>
+<header class="topbar">
+  <div class="topbar-inner">
 
-    <!-- Sección de Autenticación -->
-    <div>
-      @if (authService.usuarioActual(); as usuario) {
-        <div style="display: flex; gap: 15px; align-items: center;">
-          <span style="font-size: 0.9rem;">Hola, {{ usuario.nombre }}</span>
-          
+    <h1 class="marca" routerLink="/" title="Ir al inicio">
+      <span class="marca-icono">
+
+        <svg xmlns="http://w3.org" viewBox="0 0 1000 360" width="100%" height="100%">
+  <!-- Fondo del óvalo corporativo azul -->
+  <path fill="#000272" d="M500 0C223.858 0 0 80.589 0 180s223.858 180 500 180 500-80.589 500-180S776.142 0 500 0z"/>
+  <!-- Borde interior blanco del óvalo -->
+  <path fill="#FFFFFF" d="M500 12c268.413 0 486 75.961 486 168S768.413 348 500 348 14 272.039 14 180 231.587 12 500 12m0-12C223.858 0 0 80.589 0 180s223.858 180 500 180 500-80.589 500-180S776.142 0 500 0z"/>
+  <!-- Aquí irían los trazados de la tipografía clásica "Ford" -->
+</svg>
+
+      </span>
+      DAB® <span class="marca-sub">Autopartes</span>
+    </h1>
+
+    <nav class="nav" aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      <a routerLink="/ofertas" routerLinkActive="activo">
+        Ofertas
+        @if (cantidadOfertas() > 0) {
+          <span class="badge badge-ambar nav-badge">{{ cantidadOfertas() }}</span>
+        }
+      </a>
+    </nav>
+
+    <div class="topbar-seccion">
+
+      <div class="buscador">
+        <span class="buscador-icono">🔍</span>
+        <input type="text"
+               [value]="terminoBusqueda()"
+               (input)="setBusqueda($any($event.target).value)"
+               placeholder="Buscar productos..." aria-label="Buscar productos">
+        @if (terminoBusqueda()) {
+          <button class="buscador-limpiar" (click)="limpiarBusqueda()" title="Limpiar búsqueda">✕</button>
+        }
+      </div>
+
+      <div class="carrito" routerLink="/carrito" title="Ver carrito" role="button" tabindex="0">
+        <span class="carrito-icono">🛒</span>
+        @if (cartService.cantidadTotal() > 0) {
+          <span class="carrito-burbuja">{{ cartService.cantidadTotal() }}</span>
+        }
+      </div>
+
+      <div class="cuenta">
+        @if (authService.usuarioActual(); as usuario) {
+          <span class="usuario-nombre">{{ usuario.nombre }}</span>
+
           @if (usuario.rol === 'admin') {
-            <button routerLink="/admin" style="background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-              Panel POS
-            </button>
+            <a routerLink="/admin" class="btn btn-exito btn-mini">Panel POS</a>
           }
-          
-          <button (click)="logout()" style="background-color: transparent; color: #ffab40; border: 1px solid #ffab40; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-            Salir
-          </button>
-        </div>
-      } @else if (authService.iniciado()) {
-        <button (click)="login()" style="background-color: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          Iniciar Sesión
-        </button>
-      } @else {
-        <span style="font-size: 0.9rem; color: #aaa;">Cargando...</span>
-      }
-    </div>
 
+          <button (click)="logout()" class="btn btn-vacio btn-mini">Salir</button>
+        } @else if (authService.iniciado()) {
+          <button (click)="login()" class="btn btn-blanco btn-mini">Iniciar Sesión</button>
+        } @else {
+          <span class="cargando-sesion">Cargando...</span>
+        }
+      </div>
+
+    </div>
   </div>
 </header>
 
-<main style="padding: 2rem;">
+<main class="contenido-principal">
   <router-outlet></router-outlet>
 </main>

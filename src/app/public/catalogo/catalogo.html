@@ -1,90 +1,96 @@
-<div style="max-width: 1200px; margin: 0 auto;">
-    <h2>Catálogo de Productos</h2>
+<div class="contenedor">
+    <div class="encabezado-pagina">
+        <h2>Catálogo de Productos</h2>
+        <span class="badge badge-azul">{{ visibles().length }} producto{{ visibles().length === 1 ? '' : 's' }}</span>
+    </div>
 
     @if (cargando()) {
-        <p style="text-align: center; padding: 3rem; color: #666;">Cargando productos...</p>
+        <div class="vacio">
+            <div class="spinner"></div>
+            <p>Cargando productos...</p>
+        </div>
     } @else if (errorCargar()) {
-        <div style="text-align: center; padding: 3rem; color: #666; background: #f9f9f9; border-radius: 8px;">
-            <p style="margin: 0 0 15px 0;">No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.</p>
-            <button (click)="cargarProductos()"
-                    style="background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                Reintentar
-            </button>
+        <div class="vacio">
+            <p>No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.</p>
+            <button (click)="cargarProductos()" class="btn btn-primario">Reintentar</button>
         </div>
     } @else {
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        <div class="grid-productos">
 
-            @for (producto of productos(); track producto.id ?? $index) {
-                <div style="border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; background-color: #fff; overflow: hidden;">
+            @for (producto of visibles(); track producto.id ?? $index) {
+                <div class="producto-card">
 
-                    <div>
-                        <div style="cursor: pointer;" [routerLink]="['/producto', producto.id]" title="Ver detalles de {{ producto.nombre }}">
-                            <img [src]="(producto.urlsGaleria && producto.urlsGaleria.length > 0) ? producto.urlsGaleria[0] : placeholderImg"
-                                alt="{{ producto.nombre }}"
-                                style="width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #eee;">
+                    <div class="imagen-superior" [routerLink]="['/producto', producto.id]" title="Ver detalles de {{ producto.nombre }}">
+                        <img [src]="(producto.urlsGaleria && producto.urlsGaleria.length > 0) ? producto.urlsGaleria[0] : placeholderImg"
+                             [alt]="producto.nombre">
+                    </div>
 
-                            <div style="padding: 20px;">
-                                <div style="margin-bottom: 15px;">
-                                    <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; line-height: 1.4; color: #222;">
-                                        {{ producto.nombre }}
-                                    </h3>
-                                    <span style="font-size: 0.85rem; color: #666; background: #eee; padding: 3px 8px; border-radius: 12px;">
-                                        {{ producto.detalle }}
-                                    </span>
+                    <div class="cuerpo">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                            <h3 style="margin: 0 0 6px 0; flex: 1;">{{ producto.nombre }}</h3>
+                            @if (enOfertaVigente(producto)) {
+                                <span class="badge badge-rojo" title="Este producto está en oferta">Oferta</span>
+                            }
+                        </div>
+                        <span class="badge badge-azul">{{ producto.detalle }}</span>
+
+                        <div class="datos-producto">
+                            <div><strong>ID Interno:</strong> {{ producto.id }}</div>
+                            <div><strong>Clave SAT:</strong> {{ producto.cveSat }}</div>
+                            <div><strong>Almacén:</strong> {{ producto.almacen }}</div>
+
+                            @if (producto.numeros_pieza && producto.numeros_pieza.length > 0) {
+                                <div style="margin-top: 8px;">
+                                    <strong>Números de Pieza:</strong>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
+                                        @for (np of producto.numeros_pieza; track np) {
+                                            <span class="badge badge-azul">{{ np }}</span>
+                                        }
+                                    </div>
                                 </div>
-
-                                <div style="font-size: 0.9rem; color: #444; margin-bottom: 15px; line-height: 1.6;">
-                                    <div><strong>ID Interno:</strong> {{ producto.id }}</div>
-                                    <div><strong>Clave SAT:</strong> {{ producto.cveSat }}</div>
-                                    <div><strong>Almacén:</strong> {{ producto.almacen }}</div>
-
-                                    @if (producto.numeros_pieza && producto.numeros_pieza.length > 0) {
-                                        <div style="margin-top: 8px;">
-                                            <strong>Números de Pieza:</strong>
-                                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
-                                                @for (np of producto.numeros_pieza; track np) {
-                                                    <span style="background: #e3f2fd; color: #0d47a1; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
-                                                        {{ np }}
-                                                    </span>
-                                                }
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
 
-                    <div style="padding: 0 20px 20px 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div class="pie">
+                        <div class="fila">
                             <div>
-                                <div style="font-size: 0.8rem; color: #777;">Disponibilidad</div>
-                                <div style="font-weight: bold;" [style.color]="producto.existencia > 0 ? '#2e7d32' : '#c62828'">
+                                <div class="leyenda">Disponibilidad</div>
+                                <div class="precio-aviso" [class.precio-bajo]="producto.existencia <= 5">
                                     {{ producto.existencia }} pzs
                                 </div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 0.8rem; color: #777;">Costo</div>
-                                <div style="font-size: 1.4rem; font-weight: bold; color: #333;">
-                                    {{ producto.costo | currency:'MXN' }}
-                                </div>
+                                <div class="leyenda">Costo</div>
+                                @if (enOfertaVigente(producto) && producto.precioOferta) {
+                                    <div>
+                                        <span class="precio-tachado">{{ (producto.precioRegular ?? producto.costo) | currency:'MXN' }}</span>
+                                        <span class="precio-oferta">{{ producto.precioOferta | currency:'MXN' }}</span>
+                                    </div>
+                                } @else {
+                                    <div class="precio-normal">{{ producto.costo | currency:'MXN' }}</div>
+                                }
                             </div>
                         </div>
 
-                        <button [disabled]="producto.existencia === 0" 
-                                (click)="agregarAlCarrito(producto)"
-                                style="width: 100%; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; transition: background-color 0.2s;"
-                                [style.background-color]="producto.existencia > 0 ? '#007bff' : '#ccc'"
-                                [style.cursor]="producto.existencia > 0 ? 'pointer' : 'not-allowed'">
+                        <button class="btn btn-primario" [disabled]="producto.existencia === 0"
+                                (click)="agregarAlCarrito(producto)">
                             {{ producto.existencia > 0 ? 'Agregar al Carrito' : 'Agotado' }}
                         </button>
                     </div>
 
                 </div>
             } @empty {
-                <p style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666; background: #f9f9f9; border-radius: 8px;">
-                    No hay productos disponibles en este momento.
-                </p>
+                @if (busquedaService.termino()) {
+                    <div class="vacio" style="grid-column: 1 / -1;">
+                        <p>No hay productos que coincidan con "{{ busquedaService.termino() }}".</p>
+                        <button class="btn btn-blanco" (click)="limpiarBusqueda()">Limpiar búsqueda</button>
+                    </div>
+                } @else {
+                    <div class="vacio" style="grid-column: 1 / -1;">
+                        <p>No hay productos disponibles en este momento.</p>
+                    </div>
+                }
             }
         </div>
     }

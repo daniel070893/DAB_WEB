@@ -13,6 +13,9 @@ service cloud.firestore {
     match /productos/{productoId} {
       allow read: if true;
 
+      // El admin puede actualizar cualquier campo (ofertas, costos, existencias, etc.)
+      allow update: if esAdmin();
+
       // Backend simulado: el cliente descuenta inventario al pagar.
       // Solo se permite REDUCIR existencia (nunca aumentarla ni tocar otros campos).
       allow update: if request.auth != null

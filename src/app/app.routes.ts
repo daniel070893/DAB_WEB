@@ -13,6 +13,10 @@ export const routes: Routes = [
     loadComponent: () => import('./public/carrito/carrito').then(c => c.Carrito) 
   },
   { 
+    path: 'ofertas', 
+    loadComponent: () => import('./public/ofertas/ofertas').then(c => c.Ofertas) 
+  },
+  { 
     path: 'producto/:id', 
     loadComponent: () => import('./public/producto-detalle/producto-detalle').then(c => c.ProductoDetalle) 
   },

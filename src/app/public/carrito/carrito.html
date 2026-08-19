@@ -1,135 +1,129 @@
-<div style="max-width: 1100px; margin: 0 auto;">
+<div class="contenedor-md">
 
-    <h2>Carrito de Compras</h2>
+    <div class="encabezado-pagina">
+        <h2>Carrito de Compras</h2>
+        @if (cartService.items().length > 0) {
+            <span class="badge badge-azul">{{ cartService.cantidadTotal() }} artículo{{ cartService.cantidadTotal() === 1 ? '' : 's' }}</span>
+        }
+    </div>
 
     @if (cartService.items().length === 0) {
-        <div style="text-align: center; padding: 3rem; color: #666; background: #f9f9f9; border-radius: 8px;">
-            <p style="font-size: 1.1rem; margin: 0 0 15px 0;">Tu carrito está vacío.</p>
-            <a routerLink="/" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 20px; border-radius: 4px; font-weight: bold;">
-                Ir al Catálogo
-            </a>
+        <div class="vacio">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🛒</div>
+            <p>Tu carrito está vacío.</p>
+            <a routerLink="/" class="btn btn-primario">Ir al Catálogo</a>
         </div>
     } @else {
-        <table style="width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
-            <thead>
-                <tr style="background: #333; color: white; text-align: left;">
-                    <th style="padding: 12px 15px;">Producto</th>
-                    <th style="padding: 12px 15px;">Precio</th>
-                    <th style="padding: 12px 15px; text-align: center;">Cantidad</th>
-                    <th style="padding: 12px 15px; text-align: right;">Subtotal</th>
-                    <th style="padding: 12px 15px; text-align: center;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (item of cartService.items(); track item.producto.id) {
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 15px; vertical-align: middle;">
-                            <div style="font-weight: bold; color: #222;">{{ item.producto.nombre }}</div>
-                            <div style="font-size: 0.85rem; color: #777;">{{ item.producto.detalle }}</div>
-                        </td>
-                        <td style="padding: 15px; vertical-align: middle;">{{ item.producto.costo | currency:'MXN' }}</td>
-                        <td style="padding: 15px; text-align: center; vertical-align: middle;">
-                            <div style="display: inline-flex; align-items: center; gap: 8px;">
-                                <button (click)="disminuir(item)" title="Disminuir cantidad"
-                                        style="width: 30px; height: 30px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-weight: bold;">−</button>
-                                <span style="min-width: 28px; font-weight: bold; text-align: center;">{{ item.cantidad }}</span>
-                                <button (click)="aumentar(item)" title="Aumentar cantidad"
-                                        [disabled]="item.cantidad >= item.producto.existencia"
-                                        style="width: 30px; height: 30px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-weight: bold;">+</button>
-                            </div>
-                            <div style="font-size: 0.75rem; color: #999; margin-top: 5px;">Disponible: {{ item.producto.existencia }}</div>
-                        </td>
-                        <td style="padding: 15px; text-align: right; vertical-align: middle; font-weight: bold; color: #333;">
-                            {{ subtotal(item.producto.costo, item.cantidad) | currency:'MXN' }}
-                        </td>
-                        <td style="padding: 15px; text-align: center; vertical-align: middle;">
-                            <button (click)="eliminar(item)" title="Eliminar artículo"
-                                    style="background: transparent; border: none; cursor: pointer; font-size: 1.1rem; color: #c62828;">🗑</button>
-                        </td>
+        <div class="tabla-envoltorio">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th style="text-align: center;">Cantidad</th>
+                        <th style="text-align: right;">Subtotal</th>
+                        <th style="text-align: center;">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @for (item of cartService.items(); track item.producto.id) {
+                        <tr>
+                            <td>
+                                <div class="producto-carrito">
+                                    <img [src]="(item.producto.urlsGaleria && item.producto.urlsGaleria.length > 0) ? item.producto.urlsGaleria[0] : placeholderMini"
+                                         [alt]="item.producto.nombre">
+                                    <div>
+                                        <div class="nombre-carrito">{{ item.producto.nombre }}</div>
+                                        <div class="detalle-carrito">{{ item.producto.detalle }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ item.producto.costo | currency:'MXN' }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                <div class="control-cantidad">
+                                    <button (click)="disminuir(item)" title="Disminuir cantidad">−</button>
+                                    <span>{{ item.cantidad }}</span>
+                                    <button (click)="aumentar(item)" title="Aumentar cantidad"
+                                            [disabled]="item.cantidad >= item.producto.existencia">+</button>
+                                </div>
+                                <div class="disponible-linea">Disponible: {{ item.producto.existencia }}</div>
+                            </td>
+                            <td class="subtotal-carrito">{{ subtotal(item.producto.costo, item.cantidad) | currency:'MXN' }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                <button (click)="eliminar(item)" title="Eliminar artículo" class="btn-icono">🗑</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; flex-wrap: wrap; gap: 15px;">
-            <button (click)="limpiar()"
-                    style="background: transparent; color: #c62828; border: 1px solid #c62828; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                Vaciar carrito
-            </button>
+        <div class="resumen-carrito">
+            <button (click)="limpiar()" class="btn btn-peligro">Vaciar carrito</button>
 
             <div style="text-align: right;">
-                <div style="font-size: 1rem; color: #666;">Total</div>
-                <div style="font-size: 2rem; font-weight: bold; color: #333;">{{ cartService.precioTotal() | currency:'MXN' }}</div>
-                <button (click)="confirmarPedido()"
-                        style="margin-top: 12px; background-color: #009ee3; color: white; border: none; padding: 14px 28px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer;">
-                    Confirmar Pedido y Pagar
-                </button>
-                <div style="font-size: 0.8rem; color: #999; margin-top: 8px;">Pago seguro con Mercado Pago</div>
+                <div class="leyenda-total">Total</div>
+                <div class="total-grande">{{ cartService.precioTotal() | currency:'MXN' }}</div>
+                <button (click)="confirmarPedido()" class="btn btn-primario btn-grande">Confirmar Pedido y Pagar</button>
+                <div class="pago-seguro">🔒 Pago seguro con Mercado Pago</div>
+            </div>
         </div>
-    </div>
-}
+    }
 
 </div>
 
 
 <!-- Modal: solicitar inicio de sesión -->
 @if (mostrarLogin) {
-    <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" (click)="cerrarLogin()">
-        <div style="background: #fff; border-radius: 8px; padding: 2rem; max-width: 420px; width: 90%; text-align: center;" (click)="$event.stopPropagation()">
-            <h3 style="margin: 0 0 10px 0; color: #333;">Inicia sesión para continuar</h3>
-            <p style="margin: 0 0 20px 0; color: #666;">Necesitas una sesión activa para completar tu pedido.</p>
-            <button (click)="iniciarSesionParaPagar()" [disabled]="loginCargando"
-                    style="background-color: #4285f4; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%;">
-                {{ loginCargando ? 'Iniciando sesión...' : 'Iniciar Sesión con Google' }}
-            </button>
-            <button (click)="cerrarLogin()"
-                    style="margin-top: 10px; background: transparent; color: #666; border: 1px solid #ccc; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%;">
-                Cancelar
-            </button>
+    <div class="modal-fondo" (click)="cerrarLogin()">
+        <div class="modal modal-sm" (click)="$event.stopPropagation()">
+            <div class="modal-cuerpo" style="text-align: center;">
+                <div style="font-size: 2.4rem; margin-bottom: 8px;">🔐</div>
+                <h3 style="margin: 0 0 8px;">Inicia sesión para continuar</h3>
+                <p style="margin: 0 0 20px; color: var(--muted);">Necesitas una sesión activa para completar tu pedido.</p>
+                <button (click)="iniciarSesionParaPagar()" [disabled]="loginCargando" class="btn btn-primario btn-ancho">
+                    {{ loginCargando ? 'Iniciando sesión...' : 'Iniciar Sesión con Google' }}
+                </button>
+                <button (click)="cerrarLogin()" class="btn btn-blanco btn-ancho" style="margin-top: 10px;">Cancelar</button>
+            </div>
         </div>
     </div>
 }
 
 <!-- Modal: checkout simulado de Mercado Pago -->
 @if (mostrarCheckout) {
-    <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" (click)="cerrarCheckout()">
-        <div style="background: #fff; border-radius: 8px; overflow: hidden; max-width: 440px; width: 90%;" (click)="$event.stopPropagation()">
+    <div class="modal-fondo" (click)="cerrarCheckout()">
+        <div class="modal modal-md" (click)="$event.stopPropagation()">
 
-            <div style="background: #009ee3; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: bold; font-size: 1.1rem;">Mercado Pago</span>
-                <span style="background: #ffb800; color: #333; font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 10px;">MODO DEMO</span>
+            <div class="modal-cabecera" style="background: linear-gradient(135deg, #009ee3, #00b4e6);">
+                <span>Mercado Pago</span>
+                <span class="badge badge-ambar">MODO DEMO</span>
             </div>
 
-            <div style="padding: 24px;">
+            <div class="modal-cuerpo">
                 @if (procesandoPago) {
                     <div style="text-align: center; padding: 1.5rem 0;">
-                        <div style="width: 40px; height: 40px; border: 4px solid #e0e0e0; border-top-color: #009ee3; border-radius: 50%; margin: 0 auto 16px auto; animation: giro 0.8s linear infinite;"></div>
-                        <p style="margin: 0; color: #333; font-weight: bold;">Procesando pago...</p>
-                        <p style="margin: 6px 0 0 0; color: #999; font-size: 0.85rem;">Confirmando con el banco (simulado)</p>
+                        <div class="spinner" style="border-top-color: #009ee3;"></div>
+                        <p style="margin: 0; font-weight: 700;">Procesando pago...</p>
+                        <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.85rem;">Confirmando con el banco (simulado)</p>
                     </div>
                 } @else {
-                    <p style="margin: 0 0 16px 0; color: #666; font-size: 0.95rem;">
-                        Vas a pagar <strong style="color: #333;">{{ cartService.cantidadTotal() }} artículos</strong> por un total de:
+                    <p style="margin: 0 0 16px; color: var(--muted); font-size: 0.95rem;">
+                        Vas a pagar <strong style="color: var(--text);">{{ cartService.cantidadTotal() }} artículos</strong> por un total de:
                     </p>
-                    <div style="text-align: center; font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 20px;">
+                    <div style="text-align: center; font-size: 2rem; font-weight: 800; color: var(--ford-blue); margin-bottom: 20px;">
                         {{ cartService.precioTotal() | currency:'MXN' }}
                     </div>
 
                     @if (errorPago) {
-                        <div style="background: #fdecea; color: #c62828; border: 1px solid #ef9a9a; border-radius: 4px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.9rem;">
-                            {{ errorPago }}
-                        </div>
+                        <div class="alerta alerta-error">{{ errorPago }}</div>
                     }
 
-                    <button (click)="pagar()"
-                            style="width: 100%; background-color: #009ee3; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer;">
+                    <button (click)="pagar()" class="btn btn-ancho" style="background: #009ee3; color: #fff;">
                         Pagar {{ cartService.precioTotal() | currency:'MXN' }}
                     </button>
-                    <button (click)="cerrarCheckout()"
-                            style="width: 100%; margin-top: 10px; background: transparent; color: #666; border: 1px solid #ccc; padding: 12px; border-radius: 6px; cursor: pointer;">
-                        Cancelar
-                    </button>
-                    <p style="margin: 14px 0 0 0; color: #999; font-size: 0.75rem; text-align: center;">
+                    <button (click)="cerrarCheckout()" class="btn btn-blanco btn-ancho" style="margin-top: 10px;">Cancelar</button>
+                    <p style="margin: 14px 0 0; color: var(--muted); font-size: 0.75rem; text-align: center;">
                         Modo demostración: el pago se simula y no se realiza ningún cobro real.
                     </p>
                 }

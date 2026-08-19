@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 import { CartService } from '../../core/services/cart.service';
-import { Producto } from '../catalogo/catalogo';
+import { Producto } from '../../core/models/producto';
 
 @Component({
   selector: 'app-producto-detalle',

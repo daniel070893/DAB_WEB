@@ -1,0 +1,213 @@
+.pos-grid {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.pos-catalogo {
+  flex: 1 1 600px;
+  min-width: 300px;
+}
+
+.buscador-pos {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 260px;
+}
+
+.buscador-pos input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.pos-grid-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.pos-producto {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.pos-producto:hover:not(:disabled) {
+  border-color: var(--ford-sky);
+  box-shadow: 0 4px 14px rgba(0, 52, 120, 0.18);
+}
+
+.pos-producto:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.pos-producto.agotado {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pos-nombre {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.pos-detalle {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pos-precio {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ford-blue);
+}
+
+.pos-stock {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.pos-stock.bajo {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.pos-ticket {
+  flex: 0 0 360px;
+  min-width: 280px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+}
+
+.ticket-cabecera {
+  background: linear-gradient(135deg, var(--ford-blue), var(--ford-blue-light));
+  color: #fff;
+  padding: 14px 16px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ticket-cuerpo {
+  padding: 12px 16px;
+  min-height: 160px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.ticket-vacio {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem 0;
+}
+
+.ticket-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ticket-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-nombre {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-precio-unitario {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.ticket-subtotal {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ticket-total {
+  border-top: 2px solid var(--ford-blue);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ford-blue);
+}
+
+.ticket-acciones {
+  padding: 0 16px 16px;
+}
+
+.aviso-exito {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--success), #43a047);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.fila-cambio {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.label-form {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+@media (max-width: 1080px) {
+  .pos-ticket {
+    flex-basis: 100%;
+    position: static;
+  }
+}

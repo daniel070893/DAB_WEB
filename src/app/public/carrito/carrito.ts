@@ -25,6 +25,10 @@ export class Carrito {
   procesandoPago = false;
   errorPago: string | null = null;
 
+  readonly placeholderMini = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><rect fill="#eeeeee" width="48" height="48"/></svg>`
+  );
+
   aumentar(item: ItemCarrito) {
     this.cartService.agregarProducto(item.producto);
   }
