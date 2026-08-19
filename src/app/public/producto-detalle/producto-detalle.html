@@ -1,0 +1,100 @@
+<div style="max-width: 1100px; margin: 0 auto;">
+
+    <a routerLink="/" style="display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold;">← Volver al catálogo</a>
+
+    @if (cargando()) {
+        <div style="text-align: center; padding: 4rem; color: #666;">Cargando producto...</div>
+    } @else if (noEncontrado() || !producto()) {
+        <div style="text-align: center; padding: 4rem; color: #666; background: #f9f9f9; border-radius: 8px;">
+            <h2 style="margin: 0 0 10px 0; color: #333;">Producto no encontrado</h2>
+            <p style="margin: 0 0 20px 0;">Es posible que el producto ya no esté disponible.</p>
+            <a routerLink="/" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 20px; border-radius: 4px; font-weight: bold;">
+                Ir al Catálogo
+            </a>
+        </div>
+    } @else {
+        @let prod = producto()!;
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+            <!-- Galería de fotos -->
+            <div style="flex: 1 1 480px; min-width: 300px;">
+                <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff;">
+                    <img [src]="imagenActual() || placeholderImg"
+                         [alt]="prod.nombre"
+                         style="width: 100%; height: 400px; object-fit: cover; display: block;">
+                </div>
+
+                @if (urls().length > 1) {
+                    <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+                        @for (url of urls(); track url) {
+                            <img [src]="url" [alt]="prod.nombre"
+                                 (click)="seleccionarImagen(url)"
+                                 [style.outline]="imagenActual() === url ? '3px solid #007bff' : 'none'"
+                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #ddd;">
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Detalles del producto -->
+            <div style="flex: 1 1 380px; min-width: 300px;">
+
+                <h2 style="margin: 0 0 8px 0; font-size: 1.6rem; color: #222;">{{ prod.nombre }}</h2>
+                <span style="font-size: 0.9rem; color: #666; background: #eee; padding: 4px 10px; border-radius: 12px;">
+                    {{ prod.detalle }}
+                </span>
+
+                <div style="font-size: 2.2rem; font-weight: bold; color: #333; margin: 20px 0;">
+                    {{ prod.costo | currency:'MXN' }}
+                </div>
+
+                <div style="font-size: 0.95rem; font-weight: bold; margin-bottom: 20px;"
+                     [style.color]="prod.existencia > 0 ? '#2e7d32' : '#c62828'">
+                    {{ prod.existencia > 0 ? 'Disponible: ' + prod.existencia + ' pzs' : 'Agotado' }}
+                </div>
+
+                <div style="font-size: 0.9rem; color: #444; line-height: 1.8; background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <div><strong>ID Interno:</strong> {{ prod.id }}</div>
+                    <div><strong>Clave SAT:</strong> {{ prod.cveSat }}</div>
+                    <div><strong>Almacén:</strong> {{ prod.almacen }}</div>
+
+                    @if (prod.numeros_pieza && prod.numeros_pieza.length > 0) {
+                        <div style="margin-top: 10px;">
+                            <strong>Números de Pieza:</strong>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
+                                @for (np of prod.numeros_pieza; track np) {
+                                    <span style="background: #e3f2fd; color: #0d47a1; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">
+                                        {{ np }}
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Cantidad y agregar al carrito -->
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div style="display: inline-flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden;">
+                        <button (click)="disminuir()" [disabled]="cantidad() <= 1"
+                                style="width: 38px; height: 42px; border: none; background: #f5f5f5; cursor: pointer; font-size: 1.1rem; font-weight: bold;">−</button>
+                        <span style="min-width: 40px; text-align: center; font-weight: bold; font-size: 1.05rem;">{{ cantidad() }}</span>
+                        <button (click)="aumentar()" [disabled]="prod.existencia <= 0 || cantidad() >= prod.existencia"
+                                style="width: 38px; height: 42px; border: none; background: #f5f5f5; cursor: pointer; font-size: 1.1rem; font-weight: bold;">+</button>
+                    </div>
+
+                    <button (click)="agregarAlCarrito()" [disabled]="prod.existencia <= 0"
+                            style="flex: 1; min-width: 200px; color: white; border: none; padding: 14px 20px; border-radius: 6px; font-weight: bold; font-size: 1rem; transition: background-color 0.2s; cursor: pointer;"
+                            [style.background-color]="prod.existencia > 0 ? '#007bff' : '#ccc'">
+                        {{ prod.existencia > 0 ? 'Agregar al Carrito' : 'Agotado' }}
+                    </button>
+                </div>
+
+                @if (agregado()) {
+                    <div style="margin-top: 14px; background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; border-radius: 6px; padding: 10px 14px; font-weight: bold;">
+                        ✓ {{ cantidad() }} {{ cantidad() === 1 ? 'pieza agregada' : 'piezas agregadas' }} al carrito
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,136 @@
+<div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+
+    @if (mensajeExito()) {
+        <div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 12px 20px; border-radius: 6px; font-weight: bold; z-index: 2000; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+            {{ mensajeExito() }}
+            <span style="cursor: pointer; margin-left: 12px;" (click)="cerrarExito()">✕</span>
+        </div>
+    }
+
+    <!-- Catálogo de productos -->
+    <div style="flex: 1 1 600px; min-width: 300px;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+            <h2 style="margin: 0; color: #333;">Punto de Venta</h2>
+            <input type="text" placeholder="Buscar producto..." [value]="busqueda()"
+                   (input)="buscar($any($event.target).value)"
+                   style="padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; width: 260px; font-size: 0.95rem;">
+        </div>
+
+        @if (cargando()) {
+            <div style="text-align: center; padding: 3rem; color: #666; background: #f9f9f9; border-radius: 8px;">Cargando productos...</div>
+        } @else if (productosFiltrados().length === 0) {
+            <div style="text-align: center; padding: 3rem; color: #666; background: #f9f9f9; border-radius: 8px;">Sin resultados.</div>
+        } @else {
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                @for (producto of productosFiltrados(); track producto.id) {
+                    <button (click)="agregar(producto)"
+                            [disabled]="producto.existencia <= 0"
+                            [style.opacity]="producto.existencia <= 0 ? 0.5 : 1"
+                            style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; text-align: left; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 6px;">
+                        <span style="font-weight: bold; color: #222; font-size: 0.95rem;">{{ producto.nombre }}</span>
+                        <span style="font-size: 0.8rem; color: #777;">{{ producto.detalle }}</span>
+                        <span style="font-size: 1.1rem; font-weight: bold; color: #009ee3;">{{ producto.costo | currency:'MXN' }}</span>
+                        <span [style.color]="producto.existencia <= 5 ? '#c62828' : '#2e7d32'"
+                              [style.background]="producto.existencia <= 5 ? '#fdecea' : '#e8f5e9'"
+                              style="align-self: flex-start; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">
+                            {{ producto.existencia <= 0 ? 'Agotado' : 'Stock: ' + producto.existencia }}
+                        </span>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Ticket / carrito de mostrador -->
+    <div style="flex: 0 0 360px; min-width: 280px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; position: sticky; top: 20px;">
+
+        <div style="background: #333; color: white; padding: 12px 16px; font-weight: bold; display: flex; justify-content: space-between;">
+            <span>Ticket</span>
+            <span>{{ cantidadTicket() }} artículos</span>
+        </div>
+
+        <div style="padding: 16px; min-height: 160px;">
+            @if (ticket().length === 0) {
+                <div style="text-align: center; color: #999; padding: 2rem 0;">Selecciona productos para comenzar.</div>
+            } @else {
+                @for (item of ticket(); track item.producto.id) {
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.producto.nombre }}</div>
+                            <div style="font-size: 0.8rem; color: #777;">{{ item.producto.costo | currency:'MXN' }} c/u</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button (click)="disminuir(item)" style="width: 26px; height: 26px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-weight: bold;">−</button>
+                            <span style="min-width: 22px; text-align: center; font-weight: bold;">{{ item.cantidad }}</span>
+                            <button (click)="aumentar(item)" [disabled]="item.cantidad >= item.producto.existencia" style="width: 26px; height: 26px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; font-weight: bold;">+</button>
+                        </div>
+                        <div style="font-weight: bold; color: #333; white-space: nowrap;">{{ subtotal(item) | currency:'MXN' }}</div>
+                        <button (click)="quitar(item)" title="Quitar" style="background: transparent; border: none; cursor: pointer; color: #c62828;">🗑</button>
+                    </div>
+                }
+            }
+        </div>
+
+        <div style="border-top: 2px solid #333; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 1.1rem; color: #333; font-weight: bold;">Total</span>
+            <span style="font-size: 1.6rem; font-weight: bold; color: #333;">{{ totalTicket() | currency:'MXN' }}</span>
+        </div>
+
+        <div style="padding: 0 16px 16px 16px;">
+            <button (click)="abrirCobro()" [disabled]="totalTicket() <= 0"
+                    style="width: 100%; background-color: #4caf50; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 1.05rem; font-weight: bold; cursor: pointer;">
+                Cobrar {{ totalTicket() | currency:'MXN' }}
+            </button>
+            @if (ticket().length > 0) {
+                <button (click)="quitarTicket()" style="width: 100%; margin-top: 8px; background: transparent; color: #c62828; border: 1px solid #c62828; padding: 10px; border-radius: 6px; cursor: pointer;">
+                    Vaciar ticket
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de cobro en efectivo -->
+@if (mostrarCobro()) {
+    <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" (click)="cerrarCobro()">
+        <div style="background: #fff; border-radius: 8px; padding: 2rem; max-width: 420px; width: 90%;" (click)="$event.stopPropagation()">
+
+            <h3 style="margin: 0 0 6px 0; color: #333;">Cobrar en mostrador</h3>
+            <p style="margin: 0 0 18px 0; color: #666;">Pago en efectivo por <strong>{{ totalTicket() | currency:'MXN' }}</strong></p>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 0.9rem; color: #555; margin-bottom: 6px;">Efectivo recibido</label>
+                <input type="number" min="0" [value]="efectivoRecibido()" (input)="actualizarEfectivo($event)"
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.2rem; font-weight: bold; box-sizing: border-box;">
+                <button (click)="pagarExacto()" style="margin-top: 8px; background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    Exacto
+                </button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; margin-bottom: 16px;">
+                <span style="color: #666;">Cambio</span>
+                <span style="font-weight: bold; color: #2e7d32;">{{ cambio() | currency:'MXN' }}</span>
+            </div>
+
+            @if (errorCobro()) {
+                <div style="background: #fdecea; color: #c62828; border: 1px solid #ef9a9a; border-radius: 4px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.9rem;">
+                    {{ errorCobro() }}
+                </div>
+            }
+
+            @if (procesandoCobro()) {
+                <div style="text-align: center; padding: 0.8rem 0; color: #666; font-weight: bold;">Registrando venta...</div>
+            } @else {
+                <button (click)="confirmarCobro()" [disabled]="!puedeConfirmar()"
+                        style="width: 100%; background-color: #4caf50; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer;">
+                    Confirmar cobro
+                </button>
+                <button (click)="cerrarCobro()"
+                        style="width: 100%; margin-top: 10px; background: transparent; color: #666; border: 1px solid #ccc; padding: 12px; border-radius: 6px; cursor: pointer;">
+                    Cancelar
+                </button>
+            }
+        </div>
+    </div>
+}

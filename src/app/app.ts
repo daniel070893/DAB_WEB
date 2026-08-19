@@ -1,12 +1,29 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterModule } from '@angular/router';
+import { AuthService } from './core/services/auth';
+import { CartService } from './core/services/cart.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet, RouterModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrls: ['./app.scss']
 })
 export class App {
-  protected readonly title = signal('mipos-web');
+  title = 'mipos-web';
+
+// 2. Inyectamos public cartService junto con tu authService
+  constructor(
+    public authService: AuthService,
+    public cartService: CartService
+  ) {}
+
+  async login() {
+    await this.authService.loginConGoogle();
+  }
+
+  async logout() {
+    await this.authService.logout();
+  }
 }
