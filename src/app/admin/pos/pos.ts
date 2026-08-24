@@ -5,7 +5,7 @@ import { Firestore, collection, getDocs, query } from '@angular/fire/firestore';
 import { AuthService } from '../../core/services/auth';
 import { PedidoService } from '../../core/services/pedido.service';
 import { ItemCarrito } from '../../core/services/cart.service';
-import { Producto } from '../../public/catalogo/catalogo';
+import { Producto } from '../../core/models/producto';
 
 @Component({
   selector: 'app-pos',

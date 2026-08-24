@@ -1,0 +1,43 @@
+.filtros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip-filtro {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  background: #e8ecf2;
+  color: var(--muted);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.chip-filtro:hover {
+  background: var(--ford-tint-strong);
+}
+
+.chip-filtro.activo {
+  background: linear-gradient(135deg, var(--ford-blue), var(--ford-blue-light));
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 52, 120, 0.3);
+}
+
+.fila-detalle {
+  background: var(--ford-tint);
+}
+
+.fila-detalle td {
+  border-bottom: 2px solid var(--ford-tint-strong);
+}
+
+.detalle-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}

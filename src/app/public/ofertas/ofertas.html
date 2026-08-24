@@ -1,0 +1,66 @@
+<div class="contenedor">
+    <div class="encabezado-pagina">
+        <h2>🔥 Ofertas Vigentes</h2>
+        <span class="badge badge-rojo">{{ visibles().length }} oferta{{ visibles().length === 1 ? '' : 's' }}</span>
+    </div>
+
+    @if (cargando()) {
+        <div class="vacio">
+            <div class="spinner"></div>
+            <p>Cargando ofertas...</p>
+        </div>
+    } @else if (errorCargar()) {
+        <div class="vacio">
+            <p>No se pudieron cargar las ofertas. Verifica tu conexión e inténtalo de nuevo.</p>
+            <button (click)="cargarProductos()" class="btn btn-primario">Reintentar</button>
+        </div>
+    } @else {
+
+        @if (busquedaService.termino() && visibles().length === 0) {
+            <div class="vacio">
+                <p>No hay ofertas que coincidan con "{{ busquedaService.termino() }}".</p>
+                <button class="btn btn-blanco" (click)="limpiarBusqueda()">Limpiar búsqueda</button>
+            </div>
+        } @else {
+            <div class="tabla-ofertas">
+
+                @for (producto of visibles(); track producto.id ?? $index) {
+                    <div class="celda-oferta">
+
+                        <div class="imagen-hover" [routerLink]="['/producto', producto.id]" title="Ver detalles de {{ producto.nombre }}">
+                            <img [src]="(producto.urlsGaleria && producto.urlsGaleria.length > 0) ? producto.urlsGaleria[0] : placeholderImg"
+                                 [alt]="producto.nombre">
+                            <span class="etiqueta-descuento">-{{ descto(producto) }}%</span>
+                        </div>
+
+                        <div class="cuerpo-oferta">
+                            <h3 style="margin: 0 0 4px 0;">{{ producto.nombre }}</h3>
+                            <span class="badge badge-azul">{{ producto.detalle }}</span>
+
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                                <span class="precio-tachado">{{ (producto.precioRegular ?? producto.costo) | currency:'MXN' }}</span>
+                                <span class="precio-oferta-grande">{{ producto.precioOferta! | currency:'MXN' }}</span>
+                            </div>
+
+                            <div style="font-size: 0.8rem; color: var(--success); font-weight: 600; margin-top: 6px;">
+                                {{ producto.existencia }} pzs disponibles
+                            </div>
+
+                            <button class="btn btn-rojo btn-ancho" [disabled]="producto.existencia === 0"
+                                    (click)="agregarAlCarrito(producto)">
+                                {{ producto.existencia > 0 ? 'Agregar al Carrito' : 'Agotado' }}
+                            </button>
+                        </div>
+
+                    </div>
+                } @empty {
+                    <div class="vacio" style="grid-column: 1 / -1;">
+                        <p>No hay ofertas vigentes en este momento.</p>
+                    </div>
+                }
+
+            </div>
+        }
+
+    }
+</div>

@@ -1,5 +1,71 @@
-a.activo {
-    color: #4caf50 !important;
-    border-bottom: 2px solid #4caf50;
-    padding-bottom: 2px;
+.admin-topbar {
+  background: linear-gradient(135deg, var(--ford-blue-deep), var(--ford-blue) 60%, var(--ford-blue-light));
+  color: #fff;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 3px solid var(--ford-sky-soft);
+  box-shadow: 0 3px 10px rgba(0, 28, 66, 0.3);
+}
+
+.admin-titulo {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: 600;
+}
+
+.admin-nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 2px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.admin-nav a:hover {
+  color: #ffe9b3;
+}
+
+.admin-nav a.activo {
+  color: var(--warning);
+  border-bottom-color: var(--warning);
+}
+
+.admin-nav .admin-volver {
+  color: #bfd3ea;
+  font-weight: 500;
+}
+
+.admin-nav .admin-volver:hover {
+  color: #fff;
+}
+
+.admin-contenido {
+  padding: 1.6rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 820px) {
+  .admin-topbar {
+    justify-content: center;
+  }
+
+  .admin-nav {
+    justify-content: center;
+    font-size: 0.9rem;
+    gap: 12px;
+  }
 }

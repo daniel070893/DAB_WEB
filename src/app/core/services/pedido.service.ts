@@ -3,7 +3,7 @@ import { Firestore, collection, doc, getDoc, writeBatch, Timestamp } from '@angu
 
 import { CartService, ItemCarrito } from './cart.service';
 import { PerfilUsuario } from './auth';
-import { Producto } from '../../public/catalogo/catalogo';
+import { Producto } from '../models/producto';
 
 export interface ItemPedido {
   productoId: string;

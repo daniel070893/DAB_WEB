@@ -12,6 +12,7 @@ const routes: Routes = [
       { path: 'pedidos', loadComponent: () => import('./pedidos/pedidos').then(m => m.Pedidos) },
       { path: 'pos', loadComponent: () => import('./pos/pos').then(m => m.Pos) },
       { path: 'inventario', loadComponent: () => import('./inventario/inventario').then(m => m.Inventario) },
+      { path: 'ofertas', loadComponent: () => import('./ofertas/ofertas').then(m => m.OfertasAdmin) },
     ],
   },
 ];
