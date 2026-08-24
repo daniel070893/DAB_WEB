@@ -1,0 +1,1 @@
+import{Na as t,fb as i,gb as a,vb as o}from"./chunk-76WUJGY3.js";var r=class n{static \u0275fac=function(e){return new(e||n)};static \u0275cmp=t({type:n,selectors:[["app-inventario"]],decls:2,vars:0,template:function(e,m){e&1&&(i(0,"p"),o(1,"inventario works!"),a())},encapsulation:2})};export{r as Inventario};
