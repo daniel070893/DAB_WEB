@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "deploy:gh": "ng build --base-href=/DAB_WEB/ && cp dist/mipos-web/browser/index.html dist/mipos-web/browser/404.html && npx angular-cli-ghpages --dir=dist/mipos-web/browser/",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -22,7 +23,6 @@
     "@angular/router": "^21.2.0",
     "@angular/ssr": "^21.2.8",
     "express": "^5.1.0",
-    "firebase": "^12.17.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

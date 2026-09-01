@@ -13,6 +13,7 @@ const routes: Routes = [
       { path: 'pos', loadComponent: () => import('./pos/pos').then(m => m.Pos) },
       { path: 'inventario', loadComponent: () => import('./inventario/inventario').then(m => m.Inventario) },
       { path: 'ofertas', loadComponent: () => import('./ofertas/ofertas').then(m => m.OfertasAdmin) },
+      { path: 'usuarios', loadComponent: () => import('./usuarios/usuarios').then(m => m.Usuarios) },
     ],
   },
 ];

@@ -8,7 +8,7 @@ export const adminGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const usuario = await authService.getUsuarioActual();
+  const usuario = await authService.recargarPerfil();
   if (usuario?.rol !== 'admin') {
     router.navigate(['/']);
     return false;

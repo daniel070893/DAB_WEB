@@ -1,0 +1,75 @@
+<div>
+
+    <div class="encabezado-pagina">
+        <h2>Gestión de Usuarios</h2>
+        <button (click)="cargarUsuarios()" class="btn btn-blanco">Refrescar</button>
+    </div>
+
+    @if (mensaje(); as msg) {
+        <div class="alerta" [class.alerta-exito]="msg.ok" [class.alerta-error]="!msg.ok">
+            {{ msg.texto }}
+        </div>
+    }
+
+    @if (cargando()) {
+        <div class="vacio">Cargando usuarios...</div>
+    } @else if (errorCargar()) {
+        <div class="vacio">
+            <p>No se pudieron cargar los usuarios.</p>
+            <button (click)="cargarUsuarios()" class="btn btn-primario">Reintentar</button>
+        </div>
+    } @else {
+
+        @if (perfiles().length === 0) {
+            <div class="vacio">No hay usuarios registrados.</div>
+        } @else {
+
+            <div class="tabla-envoltorio">
+                <table class="tabla" style="min-width: 800px;">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>UID</th>
+                            <th style="text-align: center;">Rol</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (u of perfiles(); track u.uid) {
+                            <tr>
+                                <td style="font-weight: 700;">{{ u.nombre || '—' }}</td>
+                                <td>{{ u.email || '—' }}</td>
+                                <td style="font-size: 0.8rem; color: var(--muted); word-break: break-all;">{{ u.uid }}</td>
+                                <td style="text-align: center;">
+                                    @if (rol(u) === 'admin') {
+                                        <span class="badge badge-verde">Administrador</span>
+                                    } @else {
+                                        <span class="badge badge-azul">Cliente</span>
+                                    }
+                                </td>
+                                <td style="text-align: center;">
+                                    <select class="input rol-select"
+                                            [value]="rol(u)"
+                                            [disabled]="guardandoId() === u.uid"
+                                            (change)="cambiarRol(u, $any($event.target).value)">
+                                        <option value="cliente">Cliente</option>
+                                        <option value="admin">Administrador</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="nota">
+                Cambia el rol a <strong>Administrador</strong> para que el usuario pueda acceder al panel
+                (Inventario, Ofertas, Punto de Venta y esta pantalla). El cambio se aplica de inmediato.
+            </p>
+
+        }
+
+    }
+
+</div>

@@ -1,1 +1,236 @@
-<p>inventario works!</p>
+<div>
+
+    <div class="encabezado-pagina">
+        <h2>Inventario de Productos</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button (click)="cargarProductos()" class="btn btn-blanco">Refrescar</button>
+            <button (click)="abrirAgregar()" class="btn btn-primario">+ Agregar producto</button>
+        </div>
+    </div>
+
+    @if (mensaje(); as msg) {
+        <div class="alerta" [class.alerta-exito]="msg.ok" [class.alerta-error]="!msg.ok">
+            {{ msg.texto }}
+        </div>
+    }
+
+    @if (cargando()) {
+        <div class="vacio">Cargando productos...</div>
+    } @else if (errorCargar()) {
+        <div class="vacio">
+            <p>No se pudieron cargar los productos.</p>
+            <button (click)="cargarProductos()" class="btn btn-primario">Reintentar</button>
+        </div>
+    } @else {
+
+        @if (productos().length === 0) {
+            <div class="vacio">No hay productos registrados. Agrega el primero con el botón "Agregar producto".</div>
+        } @else {
+
+            @for (g of grupos(); track g.almacen) {
+                <div class="grupo">
+                    <button type="button" class="grupo-cabecera" (click)="toggleGrupo(g.almacen)">
+                        <span class="grupo-flecha">{{ grupoAbierto(g.almacen) ? '▾' : '▸' }}</span>
+                        <span class="grupo-titulo">Almacén: {{ g.almacen }}</span>
+                        <span class="grupo-contador">{{ g.items.length }} producto(s)</span>
+                    </button>
+
+                    @if (grupoAbierto(g.almacen)) {
+                        <div class="tabla-envoltorio">
+                            <table class="tabla" style="min-width: 760px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID Interno</th>
+                                        <th>Nombre</th>
+                                        <th>Clave SAT</th>
+                                        <th style="text-align: right;">Precio</th>
+                                        <th style="text-align: center;">Existencias</th>
+                                        <th style="text-align: right;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (p of g.items; track p.id) {
+                                        <tr>
+                                            <td style="font-size: 0.85rem; color: var(--muted);">{{ p.id }}</td>
+                                            <td>
+                                                <div style="font-weight: 700;">{{ p.nombre }}</div>
+                                                <div style="font-size: 0.8rem; color: var(--muted);">{{ p.detalle }}</div>
+                                            </td>
+                                            <td>{{ p.cveSat }}</td>
+                                            <td style="text-align: right; font-weight: 700;">{{ p.costo | currency:'MXN' }}</td>
+                                            <td style="text-align: center;">
+                                                @if (filaEditando() === p.id) {
+                                                    <input type="number" min="0" step="1" class="input"
+                                                           style="width: 90px; text-align: center;"
+                                                           [ngModel]="valorExistencia()"
+                                                           (ngModelChange)="valorExistencia.set($event)">
+                                                } @else {
+                                                    <button type="button" class="btn-link" (click)="iniciarEdicionExistencia(p)" title="Editar existencias">{{ p.existencia }} ✎</button>
+                                                }
+                                            </td>
+                                            <td style="text-align: right; white-space: nowrap;">
+                                                @if (filaEditando() === p.id) {
+                                                    <button (click)="guardarExistencia(p)" class="btn btn-primario btn-mini">Guardar</button>
+                                                    <button (click)="cancelarEdicionExistencia()" class="btn btn-blanco btn-mini">Cancelar</button>
+                                                } @else {
+                                                    <button (click)="abrirEditar(p)" class="btn btn-blanco btn-mini">Editar</button>
+                                                    <button (click)="confirmarEliminar(p)" class="btn btn-peligro btn-mini">Eliminar</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+
+        }
+
+    }
+
+</div>
+
+
+<!-- Modal: formulario de producto -->
+@if (modalAbierto()) {
+    <div class="modal-fondo" (click)="cerrarModal()">
+        <div class="modal modal-md" (click)="$event.stopPropagation()">
+
+            <div class="modal-cabecera">
+                <span>{{ editando ? 'Editar producto' : 'Agregar producto' }}</span>
+                <button (click)="cerrarModal()" class="modal-cerrar" title="Cerrar">✕</button>
+            </div>
+
+            <div class="modal-cuerpo">
+
+                <div class="campo">
+                    <label class="label-form">ID Interno</label>
+                    <input class="input input-ancho" [(ngModel)]="form.idInterno"
+                           [disabled]="editando" placeholder="Ej. FILTRO-001"
+                           style="text-transform: uppercase;">
+                    <small class="ayuda">Clave única del producto (no editable al modificar). Si se omite al agregar, se genera automáticamente.</small>
+                </div>
+
+                <div class="campo">
+                    <label class="label-form">Nombre</label>
+                    <input class="input input-ancho" [(ngModel)]="form.nombre" placeholder="Ej. Filtro de aceite">
+                </div>
+
+                <div class="campo">
+                    <label class="label-form">Descripción</label>
+                    <textarea class="input input-ancho" [(ngModel)]="form.detalle" rows="2"
+                              placeholder="Ej. Filtro de aceite para motor 4 cilindros"></textarea>
+                </div>
+
+                <div class="grid-2">
+                    <div class="campo">
+                        <label class="label-form">Clave SAT</label>
+                        <input class="input input-ancho" [(ngModel)]="form.cveSat" placeholder="Ej. 2517">
+                    </div>
+                <div class="campo">
+                    <label class="label-form">Almacén</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <select class="input input-ancho" [(ngModel)]="form.almacen">
+                            <option value="">— Selecciona un almacén —</option>
+                            @for (a of almacenes(); track a.id) {
+                                <option [value]="a.nombre">{{ a.nombre }}</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-blanco btn-mini" (click)="mostrarGestionAlmacenes.set(!mostrarGestionAlmacenes())">
+                            Gestionar
+                        </button>
+                    </div>
+
+                    @if (mostrarGestionAlmacenes()) {
+                        <div class="gestion-almacenes">
+                            <div style="display: flex; gap: 8px; margin: 10px 0;">
+                                <input class="input" placeholder="Nuevo almacén"
+                                       [(ngModel)]="nuevoAlmacen" style="text-transform: uppercase;">
+                                <button type="button" class="btn btn-primario btn-mini" (click)="agregarAlmacen()">Agregar</button>
+                            </div>
+                            @for (a of almacenes(); track a.id) {
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                                    @if (almacenEditando() === a.id) {
+                                        <input class="input" [ngModel]="nombreAlmacenTmp()" (ngModelChange)="nombreAlmacenTmp.set($event)" style="text-transform: uppercase;">
+                                        <button type="button" class="btn btn-primario btn-mini" (click)="guardarEdicionAlmacen(a)">Guardar</button>
+                                        <button type="button" class="btn btn-blanco btn-mini" (click)="almacenEditando.set(null)">Cancelar</button>
+                                    } @else {
+                                        <span style="flex: 1;">{{ a.nombre }}</span>
+                                        <button type="button" class="btn btn-blanco btn-mini" (click)="iniciarEdicionAlmacen(a)">Renombrar</button>
+                                        <button type="button" class="btn btn-peligro btn-mini" (click)="eliminarAlmacen(a)">Eliminar</button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    <small class="ayuda">Selecciona un almacén existente o agrégalo/renombra/elimínalo con "Gestionar".</small>
+                </div>
+                </div>
+
+                <div class="campo">
+                    <label class="label-form">Números de Pieza <span class="ayuda">(separados por coma)</span></label>
+                    <input class="input input-ancho" [(ngModel)]="form.numerosPieza"
+                           placeholder="Ej. ABC123, XYZ-99, 5566">
+                </div>
+
+                <div class="grid-2">
+                    <div class="campo">
+                        <label class="label-form">Precio (MXN)</label>
+                        <input class="input input-ancho" type="number" min="0" step="0.01" [(ngModel)]="form.costo">
+                    </div>
+                    <div class="campo">
+                        <label class="label-form">Existencias</label>
+                        <input class="input input-ancho" type="number" min="0" step="1" [(ngModel)]="form.existencia">
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label class="label-form">URLs de imágenes <span class="ayuda">(una por línea, opcional)</span></label>
+                    <textarea class="input input-ancho" [(ngModel)]="form.urlsGaleria" rows="2"
+                              placeholder="https://.../imagen1.jpg&#10;https://.../imagen2.jpg"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <button (click)="guardar()" [disabled]="guardando()" class="btn btn-primario btn-ancho">
+                        {{ guardando() ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Agregar producto') }}
+                    </button>
+                    <button (click)="cerrarModal()" class="btn btn-blanco btn-ancho">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal: alerta de duplicado (se superpone al formulario de alta) -->
+@if (alertaModal(); as a) {
+    <div class="modal-fondo" (click)="cerrarAlertaModal()">
+        <div class="modal modal-sm" (click)="$event.stopPropagation()">
+            <div class="modal-cuerpo" style="text-align: center;">
+                <div style="font-size: 2.4rem; margin-bottom: 8px;">⚠️</div>
+                <h3 style="margin: 0 0 8px;">No se puede agregar</h3>
+                <p style="margin: 0 0 20px; color: var(--muted);">{{ a.texto }}</p>
+                <button (click)="cerrarAlertaModal()" class="btn btn-primario btn-ancho">Aceptar</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal: confirmar eliminación -->
+@if (productoAEliminar(); as p) {
+    <div class="modal-fondo" (click)="cancelarEliminar()">
+        <div class="modal modal-sm" (click)="$event.stopPropagation()">
+            <div class="modal-cuerpo" style="text-align: center;">
+                <div style="font-size: 2.4rem; margin-bottom: 8px;">🗑</div>
+                <h3 style="margin: 0 0 8px;">¿Eliminar producto?</h3>
+                <p style="margin: 0 0 20px; color: var(--muted);">
+                    Se eliminará <strong>{{ p.nombre }}</strong> ({{ p.id }}). Esta acción no se puede deshacer.
+                </p>
+                <button (click)="eliminar()" class="btn btn-rojo btn-ancho">Eliminar</button>
+                <button (click)="cancelarEliminar()" class="btn btn-blanco btn-ancho" style="margin-top: 10px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+}

@@ -40,13 +40,22 @@
 
       <div class="cuenta">
         @if (authService.usuarioActual(); as usuario) {
-          <span class="usuario-nombre">{{ usuario.nombre }}</span>
+          <span class="usuario-nombre" [title]="'UID: ' + usuario.uid">{{ usuario.nombre }}</span>
+          <span class="badge" [class.badge-verde]="usuario.rol === 'admin'" [class.badge-azul]="usuario.rol !== 'admin'">{{ usuario.rol }}</span>
 
           @if (usuario.rol === 'admin') {
-            <a routerLink="/admin" class="btn btn-exito btn-mini">Panel POS</a>
+            <a routerLink="/admin" class="btn btn-exito btn-mini">Panel del Administrador</a>
           }
 
-          <button (click)="logout()" class="btn btn-vacio btn-mini">Salir</button>
+          <button (click)="logout()" class="btn-salir-moderno">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Salir
+          </button>
         } @else if (authService.iniciado()) {
           <button (click)="login()" class="btn btn-blanco btn-mini">Iniciar Sesión</button>
         } @else {

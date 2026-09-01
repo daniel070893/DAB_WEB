@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Auth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, authState, User } from '@angular/fire/auth';
 import { Firestore, doc, docData, setDoc, getDoc } from '@angular/fire/firestore';
 import { Observable, of, firstValueFrom } from 'rxjs';
-import { switchMap, map, catchError, tap, first, shareReplay } from 'rxjs/operators';
+import { switchMap, map, catchError, tap, first, filter, shareReplay } from 'rxjs/operators';
 
 export interface PerfilUsuario {
   uid: string;
@@ -53,12 +53,20 @@ export class AuthService {
           this.usuarioActual.set(perfil);
           this.iniciado.set(true);
         });
+        if (perfil) console.log('[Auth] usuario$ ->', { uid: perfil.uid, rol: perfil.rol });
       }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
     if (isPlatformBrowser(this.platformId)) {
       this.usuario$.subscribe();
+
+      // Lectura autoritativa del rol apenas se resuelve la sesión, para no
+      // depender solo del listener en vivo (refleja cambios manuales en consola).
+      // Nota: authState emite null primero; filtramos para esperar al usuario real.
+      authState(this.auth).pipe(filter((u): u is User => !!u), first()).subscribe(() => {
+        this.recargarPerfil();
+      });
 
       // Procesar resultado en caso de login con redirect
       getRedirectResult(this.auth).then(async (credencial) => {
@@ -90,6 +98,51 @@ export class AuthService {
       return this.usuarioActual();
     }
     return firstValueFrom(this.usuario$.pipe(first()));
+  }
+
+  // Lee el perfil directamente desde Firestore (fuente de verdad) y actualiza
+  // el signal. Útil tras cambios manuales del rol o para no depender solo del
+  // listener en vivo, que a veces no refleja ediciones hechas en la consola.
+  async recargarPerfil(): Promise<PerfilUsuario | null> {
+    let user = this.auth.currentUser;
+    if (!user) {
+      try {
+        user = (await firstValueFrom(
+          authState(this.auth).pipe(filter((u): u is User => !!u), first())
+        )) as User | null;
+      } catch {
+        user = null;
+      }
+    }
+    if (!user) {
+      this.ngZone.run(() => {
+        this.usuarioActual.set(null);
+        this.iniciado.set(true);
+      });
+      return null;
+    }
+
+    const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+    try {
+      const snap = await getDoc(userRef);
+      const perfil: PerfilUsuario = snap.exists()
+        ? ({ uid: user.uid, ...(snap.data() as object) } as PerfilUsuario)
+        : {
+            uid: user.uid,
+            email: user.email || '',
+            nombre: user.displayName || 'Sin nombre',
+            rol: 'cliente',
+          };
+      this.ngZone.run(() => {
+        this.usuarioActual.set(perfil);
+        this.iniciado.set(true);
+      });
+      console.log('[Auth] perfil resuelto ->', { uid: user.uid, rol: perfil.rol, existe: snap.exists() });
+      return perfil;
+    } catch (error) {
+      console.error('Error al recargar el perfil desde Firestore:', error);
+      return this.usuarioActual();
+    }
   }
 
   async loginConGoogle() {

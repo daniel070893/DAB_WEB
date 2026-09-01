@@ -13,8 +13,8 @@ service cloud.firestore {
     match /productos/{productoId} {
       allow read: if true;
 
-      // El admin puede actualizar cualquier campo (ofertas, costos, existencias, etc.)
-      allow update: if esAdmin();
+      // El admin puede crear, actualizar y eliminar productos
+      allow create, update, delete: if esAdmin();
 
       // Backend simulado: el cliente descuenta inventario al pagar.
       // Solo se permite REDUCIR existencia (nunca aumentarla ni tocar otros campos).
@@ -23,6 +23,13 @@ service cloud.firestore {
         && request.resource.data.existencia >= 0
         && request.resource.data.existencia < resource.data.existencia
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['existencia']);
+    }
+
+    // Catálogo de almacenes: cualquier usuario autenticado puede leer;
+    // solo el admin puede crear, renombrar o eliminar.
+    match /almacenes/{id} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if esAdmin();
     }
 
     // Pedidos: cada usuario solo crea y lee los suyos; el admin puede leer todos
@@ -36,9 +43,21 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Perfiles: cada usuario solo lee y escribe el suyo
+    // Perfiles de usuario
     match /usuarios/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      function rolCambia() {
+        return 'rol' in request.resource.data.diff(resource.data).affectedKeys();
+      }
+      // El propio usuario y el admin pueden leer
+      allow read: if request.auth != null && (request.auth.uid == uid || esAdmin());
+
+      // El usuario solo puede crear/edificar su propio perfil y NUNCA su rol.
+      // El admin puede crear/editar/eliminar cualquier perfil (incluido el rol).
+      allow create: if request.auth != null
+        && ((request.auth.uid == uid && !rolCambia()) || esAdmin());
+      allow update: if request.auth != null
+        && ((request.auth.uid == uid && !rolCambia()) || esAdmin());
+      allow delete: if esAdmin();
     }
   }
 }
