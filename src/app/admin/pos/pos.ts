@@ -6,11 +6,13 @@ import { AuthService } from '../../core/services/auth';
 import { PedidoService } from '../../core/services/pedido.service';
 import { ItemCarrito } from '../../core/services/cart.service';
 import { Producto } from '../../core/models/producto';
+import { DatosFacturacion } from '../../core/models/factura';
+import { FacturacionComponent } from '../../public/facturacion/facturacion';
 
 @Component({
   selector: 'app-pos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FacturacionComponent],
   templateUrl: './pos.html',
   styleUrls: ['./pos.scss']
 })
@@ -39,10 +41,14 @@ export class Pos {
   cantidadTicket = computed(() => this.ticket().reduce((acc, item) => acc + item.cantidad, 0));
 
   mostrarCobro = signal(false);
+  mostrarFacturacion = signal(false);
   efectivoRecibido = signal(0);
   procesandoCobro = signal(false);
   errorCobro = signal<string | null>(null);
   mensajeExito = signal<string | null>(null);
+
+  datosFacturacion = signal<DatosFacturacion | null>(null);
+  facturacionGuardada = signal(false);
 
   cambio = computed(() => Math.max(0, this.efectivoRecibido() - this.totalTicket()));
   puedeConfirmar = computed(() => this.totalTicket() > 0 && this.efectivoRecibido() >= this.totalTicket());
@@ -82,11 +88,11 @@ export class Pos {
 
     if (index > -1) {
       const itemExistente = items[index];
-      if (itemExistente.cantidad < producto.existencia) {
+      if (itemExistente.cantidad < (producto.existencia ?? 0)) {
         items[index].cantidad++;
         this.ticketSignal.set([...items]);
       }
-    } else if (producto.existencia > 0) {
+    } else if ((producto.existencia ?? 0) > 0) {
       this.ticketSignal.set([...items, { producto, cantidad: 1 }]);
     }
   }
@@ -121,6 +127,24 @@ export class Pos {
     if (this.totalTicket() <= 0) return;
     this.efectivoRecibido.set(this.totalTicket());
     this.errorCobro.set(null);
+    this.mostrarFacturacion.set(true);
+  }
+
+  cerrarFacturacion() {
+    this.mostrarFacturacion.set(false);
+  }
+
+  onFacturacionGuardada(datos: DatosFacturacion) {
+    this.datosFacturacion.set(datos);
+    this.facturacionGuardada.set(true);
+    this.mostrarFacturacion.set(false);
+    this.mostrarCobro.set(true);
+  }
+
+  onFacturacionOmitida() {
+    this.datosFacturacion.set(null);
+    this.facturacionGuardada.set(false);
+    this.mostrarFacturacion.set(false);
     this.mostrarCobro.set(true);
   }
 
@@ -146,18 +170,37 @@ export class Pos {
       const usuario = await this.authService.getUsuarioActual();
       if (!usuario) throw new Error('Sesión no disponible');
 
-      const pedido = await this.pedidoService.registrarVentaMostrador(usuario, this.ticket());
+      const pedido = await this.pedidoService.registrarVentaMostrador(
+        usuario,
+        this.ticket(),
+        this.datosFacturacion() || undefined
+      );
 
       this.mostrarCobro.set(false);
       this.efectivoRecibido.set(0);
+      this.datosFacturacion.set(null);
+      this.facturacionGuardada.set(false);
       this.ticketSignal.set([]);
       await this.cargarProductos();
 
       this.mensajeExito.set(`Venta registrada correctamente — Folio ${pedido.folio}`);
       setTimeout(() => this.mensajeExito.set(null), 6000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al registrar la venta', error);
-      this.errorCobro.set('No se pudo registrar la venta. Revisa el inventario e intenta de nuevo.');
+      const msg = error?.message || String(error);
+      if (msg.includes('no tiene identificador')) {
+        this.errorCobro.set('Error: producto sin ID válido.');
+      } else if (msg.includes('ya no existe')) {
+        this.errorCobro.set('Error: un producto ya no está disponible.');
+      } else if (msg.includes('Existencias insuficientes')) {
+        this.errorCobro.set(msg);
+      } else if (msg.includes('carrito está vacío')) {
+        this.errorCobro.set('El ticket está vacío.');
+      } else if (msg.includes('Sesión no disponible')) {
+        this.errorCobro.set('Tu sesión ha expirado. Inicia sesión de nuevo.');
+      } else {
+        this.errorCobro.set(`Error al registrar la venta: ${msg}`);
+      }
     } finally {
       this.procesandoCobro.set(false);
     }

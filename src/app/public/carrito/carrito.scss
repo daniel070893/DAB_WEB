@@ -82,3 +82,64 @@
   color: var(--muted);
   margin-top: 8px;
 }
+
+/* Modal grande para facturación */
+.modal-grande {
+  max-width: 680px;
+}
+
+/* Resumen de facturación en checkout */
+.resumen-facturacion {
+  background: var(--ford-tint);
+  border: 1px solid var(--ford-tint-strong);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.facturacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ford-blue);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--ford-sky);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--ford-blue);
+  }
+}
+
+.facturacion-datos {
+  display: grid;
+  gap: 6px;
+}
+
+.dato-fila {
+  display: flex;
+  gap: 8px;
+  font-size: 0.85rem;
+
+  .dato-label {
+    color: var(--muted);
+    min-width: 110px;
+  }
+
+  .dato-valor {
+    color: var(--text);
+    font-weight: 500;
+  }
+}

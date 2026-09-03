@@ -32,3 +32,23 @@
   font-weight: 800;
   color: var(--ford-blue);
 }
+
+/* Sección de facturación en comprobante */
+.seccion-facturacion {
+  margin-bottom: 24px;
+  text-align: left;
+
+  h4 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    color: var(--ford-blue);
+    text-align: center;
+  }
+
+  .comprobante {
+    margin-bottom: 0;
+    background: #fff;
+    border-color: var(--border);
+    border-style: solid;
+  }
+}

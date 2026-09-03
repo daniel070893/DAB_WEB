@@ -90,6 +90,24 @@
     </div>
 }
 
+<!-- Modal: datos de facturación -->
+@if (mostrarFacturacion) {
+    <div class="modal-fondo" (click)="cerrarFacturacion()">
+        <div class="modal modal-md modal-grande" (click)="$event.stopPropagation()">
+            <div class="modal-cabecera">
+                <span>📋 Datos de Facturación</span>
+                <span class="badge badge-ambar">CFDI 4.0</span>
+            </div>
+            <div class="modal-cuerpo">
+                <app-facturacion
+                    (guardado)="onFacturacionGuardada($event)"
+                    (cancelado)="onFacturacionCancelada()"
+                ></app-facturacion>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Modal: checkout simulado de Mercado Pago -->
 @if (mostrarCheckout) {
     <div class="modal-fondo" (click)="cerrarCheckout()">
@@ -114,6 +132,33 @@
                     <div style="text-align: center; font-size: 2rem; font-weight: 800; color: var(--ford-blue); margin-bottom: 20px;">
                         {{ cartService.precioTotal() | currency:'MXN' }}
                     </div>
+
+                    @if (datosFacturacion()) {
+                        <div class="resumen-facturacion">
+                            <div class="facturacion-header">
+                                <span>Facturado a:</span>
+                                <button class="btn-link" (click)="editarFacturacion()">Editar</button>
+                            </div>
+                            <div class="facturacion-datos">
+                                <div class="dato-fila">
+                                    <span class="dato-label">Razón Social:</span>
+                                    <span class="dato-valor">{{ datosFacturacion()!.razonSocial }}</span>
+                                </div>
+                                <div class="dato-fila">
+                                    <span class="dato-label">RFC:</span>
+                                    <span class="dato-valor">{{ datosFacturacion()!.rfc }}</span>
+                                </div>
+                                <div class="dato-fila">
+                                    <span class="dato-label">Régimen Fiscal:</span>
+                                    <span class="dato-valor">{{ datosFacturacion()!.regimenFiscal }}</span>
+                                </div>
+                                <div class="dato-fila">
+                                    <span class="dato-label">Correo Fiscal:</span>
+                                    <span class="dato-valor">{{ datosFacturacion()!.emailFiscal }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
 
                     @if (errorPago) {
                         <div class="alerta alerta-error">{{ errorPago }}</div>

@@ -1,15 +1,17 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 import { CartService, ItemCarrito } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth';
 import { PedidoService } from '../../core/services/pedido.service';
+import { DatosFacturacion } from '../../core/models/factura';
+import { FacturacionComponent } from '../facturacion/facturacion';
 
 @Component({
   selector: 'app-carrito',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FacturacionComponent],
   templateUrl: './carrito.html',
   styleUrls: ['./carrito.scss']
 })
@@ -22,8 +24,12 @@ export class Carrito {
   mostrarLogin = false;
   loginCargando = false;
   mostrarCheckout = false;
+  mostrarFacturacion = false;
   procesandoPago = false;
   errorPago: string | null = null;
+
+  datosFacturacion = signal<DatosFacturacion | null>(null);
+  facturacionGuardada = signal(false);
 
   readonly placeholderMini = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><rect fill="#eeeeee" width="48" height="48"/></svg>`
@@ -59,7 +65,7 @@ export class Carrito {
       this.mostrarLogin = true;
       return;
     }
-    this.abrirCheckout();
+    this.abrirFacturacion();
   }
 
   async iniciarSesionParaPagar() {
@@ -70,7 +76,7 @@ export class Carrito {
       const usuario = await this.authService.getUsuarioActual();
       if (usuario) {
         this.mostrarLogin = false;
-        this.abrirCheckout();
+        this.abrirFacturacion();
       }
     } finally {
       this.loginCargando = false;
@@ -79,6 +85,26 @@ export class Carrito {
 
   cerrarLogin() {
     this.mostrarLogin = false;
+  }
+
+  private abrirFacturacion() {
+    this.errorPago = null;
+    this.mostrarFacturacion = true;
+  }
+
+  cerrarFacturacion() {
+    this.mostrarFacturacion = false;
+  }
+
+  onFacturacionGuardada(datos: DatosFacturacion) {
+    this.datosFacturacion.set(datos);
+    this.facturacionGuardada.set(true);
+    this.mostrarFacturacion = false;
+    this.abrirCheckout();
+  }
+
+  onFacturacionCancelada() {
+    this.mostrarFacturacion = false;
   }
 
   private abrirCheckout() {
@@ -104,7 +130,10 @@ export class Carrito {
         throw new Error('Sesión no disponible');
       }
 
-      const pedido = await this.pedidoService.procesarPedido(usuario);
+      const pedido = await this.pedidoService.procesarPedido(
+        usuario,
+        this.datosFacturacion() || undefined
+      );
       this.mostrarCheckout = false;
       this.cartService.limpiarCarrito();
       this.router.navigate(['/pedido-exitoso'], { state: { pedido } });
@@ -114,5 +143,9 @@ export class Carrito {
     } finally {
       this.procesandoPago = false;
     }
+  }
+
+  editarFacturacion() {
+    this.mostrarFacturacion = true;
   }
 }

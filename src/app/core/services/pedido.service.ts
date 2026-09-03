@@ -4,6 +4,7 @@ import { Firestore, collection, doc, getDoc, writeBatch, Timestamp } from '@angu
 import { CartService, ItemCarrito } from './cart.service';
 import { PerfilUsuario } from './auth';
 import { Producto } from '../models/producto';
+import { DatosFacturacion } from '../models/factura';
 
 export interface ItemPedido {
   productoId: string;
@@ -27,6 +28,7 @@ export interface Pedido {
   metodoPago: 'simulado' | 'efectivo';
   pagadorId?: string;
   fecha: Timestamp;
+  datosFacturacion?: DatosFacturacion;
 }
 
 @Injectable({
@@ -40,20 +42,28 @@ export class PedidoService {
   private ultimoPedidoSignal = signal<Pedido | null>(null);
   ultimoPedido = this.ultimoPedidoSignal.asReadonly();
 
-  async procesarPedido(usuario: PerfilUsuario): Promise<Pedido> {
-    return this.registrarPedido(usuario, this.cartService.items(), 'web', 'simulado');
+  async procesarPedido(
+    usuario: PerfilUsuario,
+    datosFacturacion?: DatosFacturacion
+  ): Promise<Pedido> {
+    return this.registrarPedido(usuario, this.cartService.items(), 'web', 'simulado', datosFacturacion);
   }
 
   // Venta de mostrador (POS): sin carrito global, se reciben los artículos directamente
-  async registrarVentaMostrador(usuario: PerfilUsuario, items: ItemCarrito[]): Promise<Pedido> {
-    return this.registrarPedido(usuario, items, 'pos', 'efectivo');
+  async registrarVentaMostrador(
+    usuario: PerfilUsuario,
+    items: ItemCarrito[],
+    datosFacturacion?: DatosFacturacion
+  ): Promise<Pedido> {
+    return this.registrarPedido(usuario, items, 'pos', 'efectivo', datosFacturacion);
   }
 
   private async registrarPedido(
     usuario: PerfilUsuario,
     items: ItemCarrito[],
     origen: 'web' | 'pos',
-    metodoPago: 'simulado' | 'efectivo'
+    metodoPago: 'simulado' | 'efectivo',
+    datosFacturacion?: DatosFacturacion
   ): Promise<Pedido> {
     if (items.length === 0) {
       throw new Error('El carrito está vacío');
@@ -82,22 +92,37 @@ export class PedidoService {
     // Descontar inventario validando existencias actuales en Firestore
     for (const item of items) {
       const productoId = item.producto.id;
-      if (!productoId) continue;
+      if (!productoId) {
+        throw new Error(`El producto "${item.producto.nombre}" no tiene identificador`);
+      }
 
       const prodRef = doc(this.firestore, `productos/${productoId}`);
-      const prodSnap = await getDoc(prodRef);
 
-      if (!prodSnap.exists()) {
-        throw new Error(`El producto "${item.producto.nombre}" ya no existe`);
+      try {
+        const prodSnap = await getDoc(prodRef);
+
+        if (!prodSnap.exists()) {
+          throw new Error(`El producto "${item.producto.nombre}" ya no existe en la base de datos`);
+        }
+
+        const data = prodSnap.data();
+        const existenciaActual = data?.['existencia'];
+
+        if (existenciaActual === undefined || existenciaActual === null) {
+          throw new Error(`El producto "${item.producto.nombre}" no tiene campo de existencia`);
+        }
+
+        if (Number(existenciaActual) < item.cantidad) {
+          throw new Error(`Existencias insuficientes para "${item.producto.nombre}" (disponibles: ${existenciaActual}, solicitados: ${item.cantidad})`);
+        }
+
+        batch.update(prodRef, { existencia: Number(existenciaActual) - item.cantidad });
+      } catch (error: any) {
+        if (error?.message?.includes('Existencias insuficientes') || error?.message?.includes('ya no existe') || error?.message?.includes('no tiene')) {
+          throw error;
+        }
+        throw new Error(`Error al acceder al producto "${item.producto.nombre}": ${error?.message || error}`);
       }
-
-      const producto = prodSnap.data() as Producto;
-      const existenciaActual = producto.existencia ?? 0;
-      if (existenciaActual < item.cantidad) {
-        throw new Error(`Existencias insuficientes para "${item.producto.nombre}" (disponibles: ${existenciaActual})`);
-      }
-
-      batch.update(prodRef, { existencia: existenciaActual - item.cantidad });
     }
 
     const pedido: Pedido = {
@@ -110,10 +135,11 @@ export class PedidoService {
       estado: 'Pagado',
       origen,
       metodoPago,
-      pagadorId: metodoPago === 'simulado'
-        ? `SIM-${Math.random().toString(36).slice(2, 10).toUpperCase()}`
-        : undefined,
+      ...(metodoPago === 'simulado'
+        ? { pagadorId: `SIM-${Math.random().toString(36).slice(2, 10).toUpperCase()}` }
+        : {}),
       fecha: Timestamp.now(),
+      ...(datosFacturacion ? { datosFacturacion } : {}),
     };
 
     batch.set(pedidoRef, pedido);

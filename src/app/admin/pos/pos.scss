@@ -211,3 +211,42 @@
     position: static;
   }
 }
+
+/* Modal grande para facturación en POS */
+.modal-grande-pos {
+  max-width: 680px;
+}
+
+/* Resumen de facturación en cobro POS */
+.resumen-facturacion-pos {
+  background: var(--ford-tint);
+  border: 1px solid var(--ford-tint-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.facturacion-header-pos {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ford-blue);
+  margin-bottom: 8px;
+}
+
+.dato-fila-pos {
+  display: flex;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 2px 0;
+
+  .dato-label-pos {
+    color: var(--muted);
+    min-width: 90px;
+  }
+
+  .dato-valor-pos {
+    color: var(--text);
+    font-weight: 600;
+  }
+}

@@ -88,6 +88,27 @@
     </div>
 </div>
 
+<!-- Modal: formulario de facturación (se muestra al cobrar, con opción de omitir) -->
+@if (mostrarFacturacion()) {
+    <div class="modal-fondo" (click)="cerrarFacturacion()">
+        <div class="modal modal-md modal-grande-pos" (click)="$event.stopPropagation()">
+            <div class="modal-cabecera">
+                <span>📋 Datos de Facturación</span>
+                <span class="badge badge-ambar">Opcional</span>
+            </div>
+            <div class="modal-cuerpo">
+                <p style="margin: 0 0 16px; color: var(--muted); font-size: 0.9rem; text-align: center;">
+                    Si el cliente requiere factura, completa los datos. Si no, omite este paso.
+                </p>
+                <app-facturacion
+                    (guardado)="onFacturacionGuardada($event)"
+                    (cancelado)="onFacturacionOmitida()"
+                ></app-facturacion>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Modal de cobro en efectivo -->
 @if (mostrarCobro()) {
     <div class="modal-fondo" (click)="cerrarCobro()">
@@ -95,6 +116,26 @@
 
             <h3 style="margin: 0 0 6px;">Cobrar en mostrador</h3>
             <p style="margin: 0 0 18px; color: var(--muted);">Pago en efectivo por <strong>{{ totalTicket() | currency:'MXN' }}</strong></p>
+
+            @if (datosFacturacion()) {
+                <div class="resumen-facturacion-pos">
+                    <div class="facturacion-header-pos">
+                        <span>Facturado a:</span>
+                    </div>
+                    <div class="dato-fila-pos">
+                        <span class="dato-label-pos">Razón Social:</span>
+                        <span class="dato-valor-pos">{{ datosFacturacion()!.razonSocial }}</span>
+                    </div>
+                    <div class="dato-fila-pos">
+                        <span class="dato-label-pos">RFC:</span>
+                        <span class="dato-valor-pos">{{ datosFacturacion()!.rfc }}</span>
+                    </div>
+                    <div class="dato-fila-pos">
+                        <span class="dato-label-pos">Correo:</span>
+                        <span class="dato-valor-pos">{{ datosFacturacion()!.emailFiscal }}</span>
+                    </div>
+                </div>
+            }
 
             <div style="margin-bottom: 14px;">
                 <label class="label-form">Efectivo recibido</label>

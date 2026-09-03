@@ -27,6 +27,34 @@
                 </div>
             </div>
 
+            @if (pedido.datosFacturacion) {
+                <div class="seccion-facturacion">
+                    <h4>Datos de Facturación</h4>
+                    <div class="comprobante">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span>Razón Social</span>
+                            <strong>{{ pedido.datosFacturacion.razonSocial }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span>RFC</span>
+                            <strong>{{ pedido.datosFacturacion.rfc }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span>Régimen Fiscal</span>
+                            <strong>{{ pedido.datosFacturacion.regimenFiscal }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span>Uso CFDI</span>
+                            <strong>{{ pedido.datosFacturacion.usoCfdi }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span>Correo Fiscal</span>
+                            <strong>{{ pedido.datosFacturacion.emailFiscal }}</strong>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <div class="tabla-envoltorio" style="margin-bottom: 20px;">
                 <table class="tabla" style="text-align: left;">
                     <thead>
