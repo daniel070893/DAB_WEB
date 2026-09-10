@@ -11,7 +11,9 @@ export interface Producto {
   enOferta?: boolean;
   precioRegular?: number;
   precioOferta?: number;
+  precio?: number;
   ofertaVigencia?: string | null;
+  historialCostos?: { costo: number; fecha: string }[];
 }
 
 export function productoEnOfertaVigente(p: Producto): boolean {

@@ -1,15 +1,16 @@
 import { ApplicationConfig, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 
-// Importaciones de Firebase
 import { initializeApp, provideFirebaseApp, FirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth, initializeAuth, browserLocalPersistence, browserPopupRedirectResolver } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getFunctions, provideFunctions, connectFunctionsEmulator } from '@angular/fire/functions';
 
-// Pega aquí las credenciales exactas de tu proyecto de Firebase
+import { environment } from '../environment';
+
 const firebaseConfig = {
   apiKey: "AIzaSyD0LdmYacKodvhPBwHSEmur8cd7at7H2nw",
   authDomain: "mipos-5811e.firebaseapp.com",
@@ -38,6 +39,13 @@ export const appConfig: ApplicationConfig = {
       // En el servidor (SSR/prerender) no hay sesión que restaurar: usamos getAuth().
       return getAuth(app);
     }),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
+    provideFunctions(() => {
+      const functions = getFunctions();
+      if (!isPlatformServer(inject(PLATFORM_ID)) && environment.useFunctionsEmulator) {
+        connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+      }
+      return functions;
+    })
   ]
 };

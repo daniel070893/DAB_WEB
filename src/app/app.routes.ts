@@ -25,6 +25,10 @@ export const routes: Routes = [
     loadComponent: () => import('./public/pedido-exitoso/pedido-exitoso').then(c => c.PedidoExitoso) 
   },
   { 
+    path: 'facturar', 
+    loadComponent: () => import('./public/autofacturacion/autofacturacion').then(c => c.Autofacturacion) 
+  },
+  { 
     path: 'admin', 
     canActivate: [adminGuard],
     loadChildren: () => import('./admin/admin-module').then(m => m.AdminModule) 

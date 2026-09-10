@@ -74,11 +74,14 @@ a {
 .contenedor-sm {
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
+  padding: 0 16px;
 }
 
 .contenedor-md {
   max-width: 1100px;
   margin: 0 auto;
+  padding: 0 16px;
 }
 
 /* ---------- Encabezado de página ---------- */
@@ -205,6 +208,24 @@ a {
   background: var(--surface);
   font-size: 0.92rem;
   min-width: 640px;
+}
+
+@media (max-width: 1024px) {
+  .tabla {
+    min-width: 520px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabla {
+    min-width: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tabla {
+    min-width: 400px;
+  }
 }
 
 .tabla thead th {
@@ -427,18 +448,23 @@ a {
   z-index: 1200;
   padding: 20px;
   animation: aparecer 0.18s ease;
+  overflow-x: hidden;
 }
 
 .modal {
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  width: 100%;
   animation: subir 0.22s ease;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.modal-sm { max-width: 420px; }
-.modal-md { max-width: 480px; }
+.modal-sm { }
+.modal-md { }
+.modal-lg { }
 
 .modal-cabecera {
   background: linear-gradient(135deg, var(--ford-blue), var(--ford-blue-light));
@@ -453,6 +479,18 @@ a {
 
 .modal-cuerpo { padding: 24px; }
 
+.grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+}
+
+.grid-3 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 14px !important;
+}
+
 @keyframes aparecer {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -461,6 +499,103 @@ a {
 @keyframes subir {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Responsivo Global ---------- */
+@media (max-width: 1024px) {
+  .contenedor {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  .tabla-envoltorio {
+    border-radius: var(--radius-sm);
+  }
+  .tabla {
+    font-size: 0.85rem;
+  }
+  .tabla thead th,
+  .tabla tbody td {
+    padding: 10px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contenedor-sm,
+  .contenedor-md {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+  .tabla {
+    font-size: 0.8rem;
+    min-width: 500px;
+  }
+  .tabla thead th,
+  .tabla tbody td {
+    padding: 8px 8px;
+    font-size: 0.78rem;
+  }
+  .tabla-envoltorio {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .card-padding {
+    padding: 1rem;
+  }
+  .btn {
+    padding: 9px 14px;
+    font-size: 0.88rem;
+  }
+  .input {
+    padding: 9px 11px;
+    font-size: 0.9rem;
+  }
+  .modal-fondo {
+    padding: 12px;
+  }
+  .modal {
+    margin: 0;
+    max-width: calc(100vw - 24px);
+  }
+  .modal-lg {
+    max-width: calc(100vw - 24px);
+  }
+  .modal-md {
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.2rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1rem; }
+  .encabezado-pagina {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .encabezado-pagina > div {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .card-padding {
+    padding: 0.8rem;
+  }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .input {
+    padding: 8px 10px;
+    font-size: 0.88rem;
+  }
+  .modal-cuerpo {
+    padding: 16px;
+  }
+  .modal-fondo {
+    padding: 8px;
+  }
+  .modal {
+    max-width: calc(100vw - 16px);
+  }
 }
 
 /* ---------- Controles de cantidad ---------- */

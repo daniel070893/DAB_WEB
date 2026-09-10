@@ -76,6 +76,18 @@
   margin-left: 5px;
 }
 
+.nav-facturar {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px !important;
+  border-radius: 6px;
+  border-bottom: none !important;
+  transition: background-color 0.15s;
+}
+
+.nav-facturar:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+
 .topbar-seccion {
   display: flex;
   gap: 18px;
@@ -211,34 +223,97 @@
 @media (max-width: 980px) {
   .topbar-inner {
     justify-content: center;
+    gap: 10px;
   }
 
   .buscador {
     width: 100%;
     max-width: 460px;
+    order: 3;
   }
 
   .topbar-seccion {
     width: 100%;
     justify-content: center;
+    order: 4;
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 768px) {
+  .topbar-inner {
+    padding: 0.6rem 0.8rem;
+    gap: 8px;
+  }
+
   .marca {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
   }
 
   .nav {
-    gap: 14px;
-    font-size: 0.92rem;
+    gap: 12px;
+    font-size: 0.85rem;
+    order: 3;
+  }
+
+  .nav a {
+    padding: 4px 1px;
+  }
+
+  .nav-facturar {
+    padding: 4px 8px !important;
+    font-size: 0.85rem;
+  }
+
+  .buscador {
+    width: 100%;
+    max-width: none;
+    order: 4;
+  }
+
+  .topbar-seccion {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    order: 5;
   }
 
   .usuario-nombre {
     display: none;
   }
 
+  .carrito {
+    width: 38px;
+    height: 38px;
+  }
+
   .contenido-principal {
     padding: 1.4rem 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .marca {
+    font-size: 1rem;
+  }
+
+  .nav {
+    gap: 8px;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .buscador input {
+    font-size: 0.85rem;
+  }
+
+  .contenido-principal {
+    padding: 1rem 0.6rem;
   }
 }

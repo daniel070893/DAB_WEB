@@ -1,7 +1,8 @@
+import { RouterLink } from '@angular/router';
 import { Component, inject, PLATFORM_ID, OnInit, signal, computed, NgZone, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, getDocs, query, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc } from '@angular/fire/firestore';
+import { Firestore, collection, getDocs, query, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, where } from '@angular/fire/firestore';
 
 import { Producto } from '../../core/models/producto';
 
@@ -18,6 +19,7 @@ interface FormularioProducto {
   almacen: string;
   numerosPieza: string;
   costo: number | null;
+  precio: number | null;
   existencia: number | null;
   urlsGaleria: string;
 }
@@ -25,7 +27,7 @@ interface FormularioProducto {
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './inventario.html',
   styleUrl: './inventario.scss',
 })
@@ -45,10 +47,23 @@ export class Inventario implements OnInit {
 
   productoAEliminar = signal<Producto | null>(null);
 
+  cerrarModalConfirmacion = signal(false);
+  alertaModal = signal<{ texto: string } | null>(null);
   mensaje = signal<{ texto: string; ok: boolean } | null>(null);
+  costoOriginal = signal<number>(0);
+  productoEditando = signal<Producto | null>(null);
+
+  confirmarCerrarModal() {
+    const formularioLleno = this.form.nombre || this.form.idInterno;
+    if (formularioLleno) {
+      this.cerrarModalConfirmacion.set(true);
+    } else {
+      this.cerrarModal();
+    }
+  }
   private timerMensaje: ReturnType<typeof setTimeout> | null = null;
 
-  alertaModal = signal<{ texto: string } | null>(null);
+  constructor() {}
 
   // Catálogo de almacenes
   almacenes = signal<Almacen[]>([]);
@@ -138,20 +153,37 @@ export class Inventario implements OnInit {
     }
   }
 
-  iniciarEdicionAlmacen(a: Almacen) {
-    this.almacenEditando.set(a.id);
-    this.nombreAlmacenTmp.set(a.nombre);
+iniciarEdicionAlmacen(almacenNombre: string) {
+    this.almacenEditando.set(almacenNombre);
+    this.nombreAlmacenTmp.set(almacenNombre);
   }
 
-  async guardarEdicionAlmacen(a: Almacen) {
+  async guardarEdicionAlmacen(almacenNombre: string) {
     const nuevo = this.nombreAlmacenTmp().trim().toUpperCase();
     if (!nuevo) return;
     try {
+      const a = this.almacenes().find(x => x.nombre === almacenNombre);
+      if (!a) return;
       await updateDoc(doc(this.firestore, `almacenes/${a.id}`), { nombre: nuevo });
-      if (this.form.almacen === a.nombre) this.form.almacen = nuevo;
-      this.almacenEditando.set(null);
-      await this.cargarAlmacenes();
-      this.mostrarMensaje('Almacén actualizado.', true);
+      
+      // Actualizar todos los productos que pertenecen a este almacén
+      const q = query(collection(this.firestore, 'productos'), where('almacen', '==', almacenNombre));
+      const snap = await runInInjectionContext(this.injector, async () => {
+        return await getDocs(q);
+      });
+      if (!snap.empty) {
+        const batch = writeBatch(this.firestore);
+        snap.docs.forEach(docSnap => {
+          batch.update(docSnap.ref, { almacen: nuevo });
+        });
+        await batch.commit();
+      }
+      
+       if (this.form.almacen === almacenNombre) this.form.almacen = nuevo;
+       this.almacenEditando.set(null);
+       await this.cargarAlmacenes();
+       await this.cargarProductos();
+       this.mostrarMensaje('Almacén actualizado.', true);
     } catch (error) {
       console.error('Error al renombrar almacén:', error);
       this.mostrarMensaje('No se pudo renombrar el almacén.', false);
@@ -179,6 +211,7 @@ export class Inventario implements OnInit {
       almacen: '',
       numerosPieza: '',
       costo: null,
+      precio: null,
       existencia: 0,
       urlsGaleria: '',
     };
@@ -220,6 +253,8 @@ export class Inventario implements OnInit {
 
   abrirEditar(p: Producto) {
     this.editandoId.set(p.id ?? null);
+    this.costoOriginal.set(p.costo);
+    this.productoEditando.set(p);
     this.form = {
       idInterno: p.id ?? '',
       nombre: p.nombre,
@@ -228,6 +263,7 @@ export class Inventario implements OnInit {
       almacen: (p.almacen || '').toUpperCase(),
       numerosPieza: (p.numeros_pieza ?? []).join(', '),
       costo: p.costo,
+      precio: p.precio ?? null,
       existencia: p.existencia,
       urlsGaleria: (p.urlsGaleria ?? []).join('\n'),
     };
@@ -261,20 +297,45 @@ export class Inventario implements OnInit {
         }
       }
 
+      const nuevoCosto = Number(this.form.costo) || 0;
+      const historial: { costo: number; fecha: string }[] = [];
+
+      if (this.editandoId()) {
+        const prod = this.productoEditando();
+        if (nuevoCosto !== this.costoOriginal() && prod) {
+          const nuevaEntrada = { costo: nuevoCosto, fecha: new Date().toISOString() };
+          historial.push(...(prod.historialCostos ?? []), nuevaEntrada);
+          historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+        } else {
+          const prod = this.productoEditando();
+          if (prod?.historialCostos) {
+            historial.push(...prod.historialCostos);
+            historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+          }
+        }
+      } else {
+        historial.push({ costo: nuevoCosto, fecha: new Date().toISOString() });
+      }
+
       // Al dar de alta, los datos de texto se guardan en mayúsculas.
       const aMayusculas = !this.editandoId();
       const norm = (v: string) => (aMayusculas ? (v ?? '').trim().toUpperCase() : (v ?? '').trim());
 
-      const data = {
+      const data: any = {
         nombre: norm(this.form.nombre),
         detalle: norm(this.form.detalle),
         cveSat: norm(this.form.cveSat),
         almacen: norm(this.form.almacen),
         numeros_pieza: this.parsearLista(this.form.numerosPieza).map(v => aMayusculas ? v.toUpperCase() : v),
-        costo: Number(this.form.costo) || 0,
+        costo: nuevoCosto,
+        precio: Number(this.form.precio) || 0,
         existencia: Number(this.form.existencia) || 0,
         urlsGaleria: this.parsearLineas(this.form.urlsGaleria),
       };
+
+      if (historial.length > 0) {
+        data.historialCostos = historial;
+      }
 
       const ref = doc(this.firestore, `productos/${docId}`);
       if (this.editandoId()) {
@@ -342,6 +403,50 @@ export class Inventario implements OnInit {
       console.error('Error al actualizar la existencia:', error);
       this.mostrarMensaje('No se pudo actualizar la existencia.', false);
     }
+  }
+
+  onArchivosSeleccionados(event: any) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Comprimir a JPEG al 70% de calidad para asegurar que pese <100KB (límite de Firestore es 1MB)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          const actual = this.form.urlsGaleria ? this.form.urlsGaleria.trim() + '\n' : '';
+          this.form.urlsGaleria = actual + dataUrl;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    event.target.value = '';
+  }
+
+  getUrlsPreview(): string[] {
+    return this.parsearLineas(this.form.urlsGaleria);
   }
 
   private parsearLista(texto: string): string[] {

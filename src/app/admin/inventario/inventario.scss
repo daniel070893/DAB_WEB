@@ -19,9 +19,32 @@
 }
 
 .grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+}
+
+.grid-3 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 14px !important;
+}
+
+.modal-lg .modal-cuerpo {
+  padding: 16px;
+}
+
+.modal-lg .campo {
+  margin-bottom: 14px;
+}
+
+.modal-lg .label-form {
+  font-size: 0.85rem;
+}
+
+.modal-lg .input {
+  padding: 9px 12px;
+  font-size: 0.88rem;
 }
 
 textarea.input {
@@ -109,8 +132,36 @@ textarea.input {
   background: #f7f9fc;
 }
 
-@media (max-width: 560px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .modal-lg .modal-cuerpo {
+    padding: 14px;
+  }
+  .modal-lg .campo {
+    margin-bottom: 12px;
+  }
+  .modal-lg .label-form {
+    font-size: 0.82rem;
+  }
+  .modal-lg .input {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .modal-lg .modal-cuerpo {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .tabla {
+    min-width: 400px;
+    font-size: 0.72rem;
+  }
+  .tabla thead th,
+  .tabla tbody td {
+    padding: 6px 4px;
+    font-size: 0.7rem;
   }
 }
