@@ -1,0 +1,40 @@
+.datos-producto {
+  font-size: 0.9rem;
+  color: #444;
+  margin: 14px 0 4px;
+  line-height: 1.7;
+}
+
+.leyenda {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.precio-aviso {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.precio-bajo {
+  color: var(--danger);
+}
+
+.precio-normal {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ford-blue);
+}
+
+.precio-tachado {
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-decoration: line-through;
+  margin-right: 8px;
+}
+
+.precio-oferta {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--danger);
+}
