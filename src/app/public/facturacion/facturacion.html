@@ -1,0 +1,210 @@
+<div class="facturacion-form">
+  <h3>Datos de Facturación</h3>
+  <p class="subtitulo">Completa los datos para generar tu factura electrónica (CFDI 4.0)</p>
+
+  <div class="campo-grupo">
+    <label for="razonSocial">Razón Social *</label>
+    <input
+      type="text"
+      id="razonSocial"
+      class="input input-ancho"
+      [value]="datosFacturacion().razonSocial"
+      (input)="actualizarCampo('razonSocial', $any($event.target).value)"
+      placeholder="Nombre completo o razón social"
+    />
+  </div>
+
+  <div class="fila-campos">
+    <div class="campo-grupo">
+      <label for="rfc">RFC *</label>
+      <input
+        type="text"
+        id="rfc"
+        class="input input-ancho"
+        [value]="datosFacturacion().rfc"
+        (input)="actualizarCampo('rfc', $any($event.target).value)"
+        placeholder="Ej: XAXX010101000"
+        maxlength="13"
+      />
+    </div>
+
+    <div class="campo-grupo">
+      <label for="emailFiscal">Correo Fiscal *</label>
+      <input
+        type="email"
+        id="emailFiscal"
+        class="input input-ancho"
+        [value]="datosFacturacion().emailFiscal"
+        (input)="actualizarCampo('emailFiscal', $any($event.target).value)"
+        placeholder="correo@ejemplo.com"
+      />
+    </div>
+  </div>
+
+  <div class="fila-campos">
+    <div class="campo-grupo">
+      <label for="regimenFiscal">Régimen Fiscal *</label>
+      <select
+        id="regimenFiscal"
+        class="input input-ancho"
+        [value]="datosFacturacion().regimenFiscal"
+        (change)="actualizarCampo('regimenFiscal', $any($event.target).value)"
+      >
+        <option value="">Selecciona un régimen</option>
+        @for (regimen of regimenesFiscales; track regimen.clave) {
+          <option [value]="regimen.clave">
+            {{ regimen.clave }} - {{ regimen.descripcion }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="campo-grupo">
+      <label for="usoCfdi">Uso CFDI *</label>
+      <select
+        id="usoCfdi"
+        class="input input-ancho"
+        [value]="datosFacturacion().usoCfdi"
+        (change)="actualizarCampo('usoCfdi', $any($event.target).value)"
+      >
+        <option value="">Selecciona un uso</option>
+        @for (uso of usosCfdi; track uso.clave) {
+          <option [value]="uso.clave">
+            {{ uso.clave }} - {{ uso.descripcion }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="campo-grupo">
+    <label for="telefono">Teléfono (opcional)</label>
+    <input
+      type="tel"
+      id="telefono"
+      class="input input-ancho"
+      [value]="datosFacturacion().telefono || ''"
+      (input)="actualizarCampo('telefono', $any($event.target).value)"
+      placeholder="10 dígitos"
+    />
+  </div>
+
+  <div class="toggle-direccion">
+    <button
+      type="button"
+      class="btn btn-blanco btn-sm"
+      (click)="toggleDireccion()"
+    >
+      {{ mostrarDireccion() ? 'Ocultar dirección' : 'Agregar dirección de facturación' }}
+    </button>
+  </div>
+
+  @if (mostrarDireccion()) {
+    <div class="seccion-direccion">
+      <h4>Dirección de Facturación</h4>
+
+      <div class="fila-campos">
+        <div class="campo-grupo flex-2">
+          <label for="calle">Calle *</label>
+          <input
+            type="text"
+            id="calle"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.calle || ''"
+            (input)="actualizarDireccion('calle', $any($event.target).value)"
+            placeholder="Nombre de la calle"
+          />
+        </div>
+
+        <div class="campo-grupo">
+          <label for="numExt">N° Exterior *</label>
+          <input
+            type="text"
+            id="numExt"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.numeroExterior || ''"
+            (input)="actualizarDireccion('numeroExterior', $any($event.target).value)"
+            placeholder="123"
+          />
+        </div>
+
+        <div class="campo-grupo">
+          <label for="numInt">N° Interior</label>
+          <input
+            type="text"
+            id="numInt"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.numeroInterior || ''"
+            (input)="actualizarDireccion('numeroInterior', $any($event.target).value)"
+            placeholder="A"
+          />
+        </div>
+      </div>
+
+      <div class="fila-campos">
+        <div class="campo-grupo">
+          <label for="colonia">Colonia *</label>
+          <input
+            type="text"
+            id="colonia"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.colonia || ''"
+            (input)="actualizarDireccion('colonia', $any($event.target).value)"
+            placeholder="Colonia"
+          />
+        </div>
+
+        <div class="campo-grupo">
+          <label for="cp">Código Postal *</label>
+          <input
+            type="text"
+            id="cp"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.codigoPostal || ''"
+            (input)="actualizarDireccion('codigoPostal', $any($event.target).value)"
+            placeholder="00000"
+            maxlength="5"
+          />
+        </div>
+      </div>
+
+      <div class="fila-campos">
+        <div class="campo-grupo">
+          <label for="ciudad">Ciudad *</label>
+          <input
+            type="text"
+            id="ciudad"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.ciudad || ''"
+            (input)="actualizarDireccion('ciudad', $any($event.target).value)"
+            placeholder="Ciudad"
+          />
+        </div>
+
+        <div class="campo-grupo">
+          <label for="estado">Estado *</label>
+          <input
+            type="text"
+            id="estado"
+            class="input input-ancho"
+            [value]="datosFacturacion().direccion?.estado || ''"
+            (input)="actualizarDireccion('estado', $any($event.target).value)"
+            placeholder="Estado"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="acciones-formulario">
+    <button type="button" class="btn btn-blanco" (click)="onCancelar()">Cancelar</button>
+    <button
+      type="button"
+      class="btn btn-primario"
+      [disabled]="!esValido()"
+      (click)="onGuardar()"
+    >
+      Guardar Datos de Facturación
+    </button>
+  </div>
+</div>

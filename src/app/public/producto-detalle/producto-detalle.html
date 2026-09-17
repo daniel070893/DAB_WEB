@@ -1,0 +1,108 @@
+<div class="contenedor-md">
+
+    <a routerLink="/" class="volver">← Volver al catálogo</a>
+
+    @if (cargando()) {
+        <div class="vacio">
+            <div class="spinner"></div>
+            <p>Cargando producto...</p>
+        </div>
+    } @else if (noEncontrado() || !producto()) {
+        <div class="vacio">
+            <h2 style="margin: 0 0 10px;">Producto no encontrado</h2>
+            <p style="margin: 0 0 20px;">Es posible que el producto ya no esté disponible.</p>
+            <a routerLink="/" class="btn btn-primario">Ir al Catálogo</a>
+        </div>
+    } @else {
+        @let prod = producto()!;
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+            <!-- Galería de fotos -->
+            <div style="flex: 1 1 480px; min-width: 300px;">
+                <div class="card" style="overflow: hidden;">
+                    <img [src]="imagenActual() || placeholderImg"
+                         [alt]="prod.nombre"
+                         style="width: 100%; height: 400px; object-fit: cover; display: block;">
+                </div>
+
+                @if (urls().length > 1) {
+                    <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+                        @for (url of urls(); track url) {
+                            <img [src]="url" [alt]="prod.nombre"
+                                 (click)="seleccionarImagen(url)"
+                                 [class.miniatura-activa]="imagenActual() === url"
+                                 class="miniatura">
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Detalles del producto -->
+            <div style="flex: 1 1 380px; min-width: 300px;">
+
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <h2 style="margin: 0; font-size: 1.6rem;">{{ prod.nombre }}</h2>
+                    @if (prod.enOferta && prod.precioOferta && prod.precioOferta < prod.costo) {
+                        <span class="badge badge-rojo" style="font-size: 0.9rem;">EN OFERTA</span>
+                    }
+                </div>
+                <span class="badge badge-azul" style="margin-top: 8px;">{{ prod.detalle }}</span>
+
+@if (prod.enOferta && prod.precioOferta && prod.precioOferta < prod.costo) {
+    <div class="bloque-precio">
+        <div class="precio-tachado">{{ (prod.precioRegular ?? prod.precio) | currency:'MXN' }}</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="precio-detalle-oferta">{{ prod.precioOferta | currency:'MXN' }}</span>
+            <span class="badge badge-rojo">
+                {{ 100 - (prod.precioOferta / prod.costo * 100) | number:'1.0-0' }}% OFF
+            </span>
+        </div>
+    </div>
+} @else {
+    <div class="bloque-precio precio-detalle-normal">{{ prod.precio | currency:'MXN' }}</div>
+}
+
+                <div class="disponibilidad" [class.disponible]="prod.existencia > 0" [class.agotado]="prod.existencia <= 0">
+                    {{ prod.existencia > 0 ? 'Disponible: ' + prod.existencia + ' pzs' : 'Agotado' }}
+                </div>
+
+                <div class="datos-caja">
+                    <div><strong>ID Interno:</strong> {{ prod.id }}</div>
+                    <div><strong>Clave SAT:</strong> {{ prod.cveSat }}</div>
+                    <div><strong>Almacén:</strong> {{ prod.almacen }}</div>
+
+                    @if (prod.numeros_pieza && prod.numeros_pieza.length > 0) {
+                        <div style="margin-top: 10px;">
+                            <strong>Números de Pieza:</strong>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
+                                @for (np of prod.numeros_pieza; track np) {
+                                    <span class="badge badge-azul">{{ np }}</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Cantidad y agregar al carrito -->
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px;">
+                    <div class="control-cantidad">
+                        <button (click)="disminuir()" [disabled]="cantidad() <= 1">−</button>
+                        <span>{{ cantidad() }}</span>
+                        <button (click)="aumentar()" [disabled]="prod.existencia <= 0 || cantidad() >= prod.existencia">+</button>
+                    </div>
+
+                    <button (click)="agregarAlCarrito()" [disabled]="prod.existencia <= 0"
+                            class="btn btn-primario" style="flex: 1; min-width: 200px;">
+                        {{ prod.existencia > 0 ? 'Agregar al Carrito' : 'Agotado' }}
+                    </button>
+                </div>
+
+                @if (agregado()) {
+                    <div class="alerta alerta-exito" style="margin-top: 14px; margin-bottom: 0;">
+                        ✓ {{ cantidad() }} {{ cantidad() === 1 ? 'pieza agregada' : 'piezas agregadas' }} al carrito
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

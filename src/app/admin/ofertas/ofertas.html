@@ -1,0 +1,106 @@
+<div>
+
+    <div class="encabezado-pagina">
+        <h2>Gestionar Ofertas</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button (click)="cargarProductos()" class="btn btn-blanco">Refrescar lista</button>
+            <span class="badge badge-azul">
+                {{ productosConOferta() }} de {{ productos().length }} en oferta
+            </span>
+        </div>
+    </div>
+
+    @if (mensaje(); as msg) {
+        <div class="alerta" [class.alerta-exito]="msg.ok" [class.alerta-error]="!msg.ok">
+            {{ msg.texto }}
+        </div>
+    }
+
+    @if (cargando()) {
+        <div class="vacio">Cargando productos...</div>
+    } @else if (errorCargar()) {
+        <div class="vacio">
+            <p>No se pudieron cargar los productos.</p>
+            <button (click)="cargarProductos()" class="btn btn-primario">Reintentar</button>
+        </div>
+    } @else {
+
+        @if (productos().length === 0) {
+            <div class="vacio">No hay productos con existencias disponibles.</div>
+        } @else {
+
+            <div class="tabla-envoltorio">
+                <table class="tabla" style="min-width: 1000px;">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th style="text-align: center;">Existencias</th>
+                            <th style="text-align: right;">Costo</th>
+                            <th style="text-align: center;">En oferta</th>
+                            <th style="text-align: right;">Precio regular</th>
+                            <th style="text-align: right;">Precio oferta</th>
+                            <th>Vigencia</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (p of productos(); track p.id) {
+                            <tr [class.fila-oferta]="p.enOferta">
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 220px;">
+                                        <img [src]="(p.urlsGaleria && p.urlsGaleria.length > 0) ? p.urlsGaleria[0] : placeholderMini"
+                                             [alt]="p.nombre"
+                                             style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0;">
+                                        <div>
+                                            <div style="font-weight: 700;">{{ p.nombre }}</div>
+                                            <div style="font-size: 0.8rem; color: var(--muted);">{{ p.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">{{ p.existencia }}</td>
+                                <td style="text-align: right;">{{ p.costo | currency:'MXN' }}</td>
+                                <td style="text-align: center;">
+                                    <label class="switch">
+                                        <input type="checkbox" [checked]="p.enOferta" (change)="toggleOferta(p, $event)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td style="text-align: right;">
+                                    <input type="number" min="0" step="0.01" [disabled]="!p.enOferta"
+                                           [value]="p.precioRegular ?? ''"
+                                           (input)="setNumero(p, 'precioRegular', $event)"
+                                           class="input input-der" style="width: 110px;">
+                                </td>
+                                <td style="text-align: right;">
+                                    <input type="number" min="0" step="0.01" [disabled]="!p.enOferta"
+                                           [value]="p.precioOferta ?? ''"
+                                           (input)="setNumero(p, 'precioOferta', $event)"
+                                           class="input input-der" [class.input-error]="!!p.enOferta && p.precioOferta !== undefined && p.precioOferta >= p.costo"
+                                           style="width: 110px;">
+                                </td>
+                                <td>
+                                    <input type="date" [disabled]="!p.enOferta"
+                                           [value]="p.ofertaVigencia ?? ''"
+                                           (input)="setVigencia(p, $event)"
+                                           class="input" style="padding: 8px;">
+                                    @if (descto(p) > 0) {
+                                        <div class="badge badge-rojo" style="margin-top: 4px;">-{{ descto(p) }}%</div>
+                                    }
+                                </td>
+                                <td>
+                                    <button (click)="guardar(p)" [disabled]="guardandoId() === p.id"
+                                            class="btn btn-exito" style="white-space: nowrap;">
+                                        {{ guardandoId() === p.id ? 'Guardando...' : 'Guardar' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        }
+
+    }
+
+</div>

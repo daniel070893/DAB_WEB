@@ -1,0 +1,97 @@
+<div class="contenedor">
+    <div class="encabezado-pagina">
+        <h2>Catálogo de Productos</h2>
+        <span class="badge badge-azul">{{ visibles().length }} producto{{ visibles().length === 1 ? '' : 's' }}</span>
+    </div>
+
+    @if (cargando()) {
+        <div class="vacio">
+            <div class="spinner"></div>
+            <p>Cargando productos...</p>
+        </div>
+    } @else if (errorCargar()) {
+        <div class="vacio">
+            <p>No se pudieron cargar los productos. Verifica tu conexión e inténtalo de nuevo.</p>
+            <button (click)="cargarProductos()" class="btn btn-primario">Reintentar</button>
+        </div>
+    } @else {
+        <div class="grid-productos">
+
+            @for (producto of visibles(); track producto.id ?? $index) {
+                <div class="producto-card">
+
+                    <div class="imagen-superior" [routerLink]="['/producto', producto.id]" title="Ver detalles de {{ producto.nombre }}">
+                        <img [src]="(producto.urlsGaleria && producto.urlsGaleria.length > 0) ? producto.urlsGaleria[0] : placeholderImg"
+                             [alt]="producto.nombre">
+                    </div>
+
+                    <div class="cuerpo">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                            <h3 style="margin: 0 0 6px 0; flex: 1;">{{ producto.nombre }}</h3>
+                            @if (enOfertaVigente(producto)) {
+                                <span class="badge badge-rojo" title="Este producto está en oferta">Oferta</span>
+                            }
+                        </div>
+                        <span class="badge badge-azul">{{ producto.detalle }}</span>
+
+                        <div class="datos-producto">
+                            <div><strong>ID Interno:</strong> {{ producto.id }}</div>
+                            <div><strong>Clave SAT:</strong> {{ producto.cveSat }}</div>
+                            <div><strong>Almacén:</strong> {{ producto.almacen }}</div>
+
+                            @if (producto.numeros_pieza && producto.numeros_pieza.length > 0) {
+                                <div style="margin-top: 8px;">
+                                    <strong>Números de Pieza:</strong>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
+                                        @for (np of producto.numeros_pieza; track np) {
+                                            <span class="badge badge-azul">{{ np }}</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="pie">
+                        <div class="fila">
+                            <div>
+                                <div class="leyenda">Disponibilidad</div>
+                                <div class="precio-aviso" [class.precio-bajo]="producto.existencia <= 5">
+                                    {{ producto.existencia }} pzs
+                                </div>
+                            </div>
+<div style="text-align: right;">
+    <div class="leyenda">Precio</div>
+    @if (enOfertaVigente(producto) && producto.precioOferta) {
+        <div>
+            <span class="precio-tachado">{{ (producto.precioRegular ?? producto.precio) | currency:'MXN' }}</span>
+            <span class="precio-oferta">{{ producto.precioOferta | currency:'MXN' }}</span>
+        </div>
+    } @else {
+        <div class="precio-normal">{{ producto.precio | currency:'MXN' }}</div>
+    }
+</div>
+                        </div>
+
+                        <button class="btn btn-primario" [disabled]="producto.existencia === 0"
+                                (click)="agregarAlCarrito(producto)">
+                            {{ producto.existencia > 0 ? 'Agregar al Carrito' : 'Agotado' }}
+                        </button>
+                    </div>
+
+                </div>
+            } @empty {
+                @if (busquedaService.termino()) {
+                    <div class="vacio" style="grid-column: 1 / -1;">
+                        <p>No hay productos que coincidan con "{{ busquedaService.termino() }}".</p>
+                        <button class="btn btn-blanco" (click)="limpiarBusqueda()">Limpiar búsqueda</button>
+                    </div>
+                } @else {
+                    <div class="vacio" style="grid-column: 1 / -1;">
+                        <p>No hay productos disponibles en este momento.</p>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
