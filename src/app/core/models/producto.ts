@@ -32,6 +32,7 @@ export function productoCoincide(p: Producto, termino: string): boolean {
   const t = (termino || '').trim().toLowerCase();
   if (!t) return true;
   return [
+    p.id,
     p.nombre,
     p.detalle,
     p.cveSat,
