@@ -4,7 +4,8 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Firestore, collection, getDocs, query, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, where } from '@angular/fire/firestore';
 
-import { Producto } from '../../core/models/producto';
+import { Producto, productoCoincide } from '../../core/models/producto';
+import { BusquedaService } from '../../core/services/busqueda.service';
 
 interface Almacen {
   id: string;
@@ -40,6 +41,11 @@ export class Inventario implements OnInit {
   productos = signal<Producto[]>([]);
   cargando = signal(true);
   errorCargar = signal(false);
+
+  busquedaService = inject(BusquedaService);
+  visibles = computed(() =>
+    this.productos().filter(p => productoCoincide(p, this.busquedaService.termino()))
+  );
 
   modalAbierto = signal(false);
   editandoId = signal<string | null>(null);
@@ -79,7 +85,7 @@ export class Inventario implements OnInit {
   // Productos agrupados por almacén (orden ascendente)
   grupos = computed(() => {
     const mapa = new Map<string, Producto[]>();
-    for (const p of this.productos()) {
+    for (const p of this.visibles()) {
       const clave = ((p.almacen || '').trim() || 'SIN ALMACÉN').toUpperCase();
       if (!mapa.has(clave)) mapa.set(clave, []);
       mapa.get(clave)!.push(p);
