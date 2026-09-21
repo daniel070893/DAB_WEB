@@ -192,6 +192,17 @@
   gap: 12px;
 }
 
+.version-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ford-blue);
+  color: #fff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
 .usuario-nombre {
   font-size: 0.9rem;
   font-weight: 500;

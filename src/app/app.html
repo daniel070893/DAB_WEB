@@ -40,7 +40,8 @@
       </div>
 
       <div class="cuenta">
-        @if (authService.usuarioActual(); as usuario) {
+    <span class="version-badge">{{ version }}</span>
+    @if (authService.usuarioActual(); as usuario) {
           <span class="usuario-nombre" [title]="'UID: ' + usuario.uid">{{ usuario.nombre }}</span>
           <span class="badge" [class.badge-verde]="usuario.rol === 'admin'" [class.badge-azul]="usuario.rol !== 'admin'">{{ usuario.rol }}</span>
 

@@ -1,3 +1,4 @@
+import { environment } from '../environment';
 import { Component, inject, PLATFORM_ID, OnInit, signal, NgZone, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, RouterModule } from '@angular/router';
@@ -17,6 +18,7 @@ import { Producto, productoEnOfertaVigente } from './core/models/producto';
 })
 export class App implements OnInit {
   title = 'mipos-web';
+  version = environment.version;
 
   private firestore = inject(Firestore);
   private platformId = inject(PLATFORM_ID);
