@@ -455,6 +455,14 @@ iniciarEdicionAlmacen(almacenNombre: string) {
     return this.parsearLineas(this.form.urlsGaleria);
   }
 
+  eliminarImagen(index: number) {
+    const urls = this.parsearLineas(this.form.urlsGaleria);
+    if (index >= 0 && index < urls.length) {
+      urls.splice(index, 1);
+      this.form.urlsGaleria = urls.join('\n');
+    }
+  }
+
   private parsearLista(texto: string): string[] {
     return (texto ?? '')
       .split(',')
